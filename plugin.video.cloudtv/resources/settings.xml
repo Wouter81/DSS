@@ -1,0 +1,55 @@
+﻿<settings>
+	<category label="General">
+		<setting id="Updatecommonresolvers" label="Update Resolver" type="bool" default="false"/>
+		<setting label="Enable Auto Play" default="false" type="bool" id="autoplay"/>
+		<setting label="Enable Thumbnail" default="true" type="bool" id="Thumbnail_On"/>
+		<setting id="default_player" type="labelenum" label="Default p2p-player" values="p2p-streams|Plexus" default="p2p-streams"  />
+		<setting id="torrent_player" type="labelenum" label="Default Torrent-player" values="Pulsar|KmediaTorrent" default="Pulsar"  />
+	</category>
+	<category label="My Own List">
+		<setting label="My Own List Title 1" id="MyOwnListTitle1" type="text" default="My Own List Title 1" />
+		<setting label="Enable Pastebin 1" default="false" type="bool" id="Pastebin_On1"/>
+		<setting label="My Own List 1" id="MyOwnListUrl1" type="text" default="c:\\m3u\myownlist.m3u" />
+		
+		<setting label="My Own List Title 2" id="MyOwnListTitle2" type="text" default="My Own List Title 2" />
+		<setting label="Enable Pastebin 2" default="false" type="bool" id="Pastebin_On2"/>
+		<setting label="My Own List 2" id="MyOwnListUrl2" type="text" default="c:\\m3u\myownlist.m3u" />
+		
+		<setting label="My Own List Title 3" id="MyOwnListTitle3" type="text" default="My Own List Title 3" />
+		<setting label="Enable Pastebin 3" default="false" type="bool" id="Pastebin_On3"/>
+		<setting label="My Own List 3" id="MyOwnListUrl3" type="text" default="c:\\m3u\myownlist.m3u" />
+		
+		<setting label="My Own List Title 4" id="MyOwnListTitle4" type="text" default="My Own List Title 4" />
+		<setting label="Enable Pastebin 4" default="false" type="bool" id="Pastebin_On4"/>
+		<setting label="My Own List 4" id="MyOwnListUrl4" type="text" default="c:\\m3u\myownlist.m3u" />
+		
+		<setting label="My Own List Title 5" id="MyOwnListTitle5" type="text" default="My Own List Title 5" />
+		<setting label="Enable Pastebin 5" default="false" type="bool" id="Pastebin_On5"/>
+		<setting label="My Own List 5" id="MyOwnListUrl5" type="text" default="c:\\m3u\myownlist.m3u" />
+		
+		<setting label="My Own List Title 6" id="MyOwnListTitle6" type="text" default="My Own List Title 6" />
+		<setting label="Enable Pastebin 6" default="false" type="bool" id="Pastebin_On6"/>
+		<setting label="My Own List 6" id="MyOwnListUrl6" type="text" default="c:\\m3u\myownlist.m3u" />
+		
+		<setting label="My Own List Title 7" id="MyOwnListTitle7" type="text" default="My Own List Title 7" />
+		<setting label="Enable Pastebin 7" default="false" type="bool" id="Pastebin_On7"/>
+		<setting label="My Own List 7" id="MyOwnListUrl7" type="text" default="c:\\m3u\myownlist.m3u" />
+		
+		<setting label="My Own List Title 8" id="MyOwnListTitle8" type="text" default="My Own List Title 8" />
+		<setting label="Enable Pastebin 8" default="false" type="bool" id="Pastebin_On8"/>
+		<setting label="My Own List 8" id="MyOwnListUrl8" type="text" default="c:\\m3u\myownlist.m3u" />
+		
+		<setting label="My Own List Title 9" id="MyOwnListTitle9" type="text" default="My Own List Title 9" />
+		<setting label="Enable Pastebin 9" default="true" type="bool" id="Pastebin_On9"/>
+		<setting label="My Own List 9" id="MyOwnListUrl9" type="text" default="75h5E16E" />
+		
+		<setting label="My Own List Title 10" id="MyOwnListTitle10" type="text" default="My Own List Title 10" />
+		<setting label="Enable Pastebin 10" default="true" type="bool" id="Pastebin_On10"/>
+		<setting label="My Own List 10" id="MyOwnListUrl10" type="text" default="vCHhyKiR" />
+		
+	</category>
+</settings>
+
+
+
+
