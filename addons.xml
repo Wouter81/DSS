@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+<addon id="plugin.video.wildhitz"
+       name="WildHitz"
+       version="0.1.1"
+       provider-name="DSS">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+
+
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+	<provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+	<summary lang="en">WildHitz</summary>
+    <description lang="en">WildHitz</description>
+    <platform>all</platform>
+  </extension>
+</addon>
+
+<addon id="repository.dss" name="Dutch Stream Service" version="1.8" provider-name="DSS">
+	<extension point="xbmc.addon.repository" name="Dutch Stream Service Repository">
+		<info compressed="true">https://raw.githubusercontent.com/dutchsportstreams/DSS/master/addons.xml</info>
+		<checksum>https://raw.githubusercontent.com/dutchsportstreams/DSS/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://raw.githubusercontent.com/dutchsportstreams/DSS/master/repo</datadir>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<summary>Repository Dutch Stream Service</summary>
+		<description>Download and install addons from Dutch Stream Service[CR]https://www.facebook.com/groups/DutchStreamService/</description>
+		<platform>all</platform>
+	</extension>
+</addon>
+</addons>
