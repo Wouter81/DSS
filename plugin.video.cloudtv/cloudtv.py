@@ -48,7 +48,7 @@ class NoRedirection(urllib2.HTTPErrorProcessor):
 
 
 sourceSitebvls = 'http://www.bvls2016.sc/'      
-DCTVBase = 'aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4LnhtbA=='
+DCTVBase = 'aHR0cDovL2RjdHYuY29tbHUuY29tL3htbC9JbmRleFl0dWJlLnhtbA=='
 addon = xbmcaddon.Addon('plugin.video.cloudtv')
 profile = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
 home = xbmc.translatePath(addon.getAddonInfo('path').decode('utf-8'))
@@ -72,8 +72,6 @@ functions_dir = profile
 if not os.path.exists(profile):
     os.makedirs(profile)
 
-S365COOKIEFILE='s365CookieFile.lwp'
-S365COOKIEFILE=os.path.join(profile, S365COOKIEFILE)
 
 
 
@@ -86,18 +84,6 @@ def ShowSettings(Fromurl):
 	selfAddon.openSettings()
 
 
-def get365CookieJar(updatedUName=False):
-    cookieJar=None
-    try:
-        cookieJar = cookielib.LWPCookieJar()
-        if not updatedUName:
-            cookieJar.load(S365COOKIEFILE,ignore_discard=True)
-    except: 
-        cookieJar=None
-
-    if not cookieJar:
-        cookieJar = cookielib.LWPCookieJar()
-    return cookieJar
 
 
 
@@ -198,13 +184,6 @@ def addon_log(string):
         xbmc.log("[addon.live.cloudtvr3-%s]: %s" %(string))
 
 
-def Play():
-    paradise = 'http://shoutcast.paradiseradio.org:8390/'
-    pl = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
-    pl.clear()    
-    pl.add(paradise)
-
-    xbmc.Player().play(pl)
 
 
 def makeRequest(url, headers=None):
@@ -231,179 +210,16 @@ def makeRequest(url, headers=None):
 
 				
 def DCTVIndex():
-    #dialog = xbmcgui.Dialog()
-    #dialog.ok("DutchNubesTv", "Goodbye.", "")
-   
-    #addon_log("DCTVIndex")
-    #addDir('[B][COLOR orange]Privacy Policy[/COLOR][/B]','Privacy Policy',45,'%s/p-p.png'% iconpath ,  FANART,'','','','')
-    #addDir('[B][COLOR yellow]NL Tv[/COLOR][/B]','aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4TmxUdi54bWw=',10,iconpath+'nltv.png' ,  FANART,'','','','')
-    #addDir('[B][COLOR blue]NL Radio[/COLOR][/B]','aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4UmFkaW8ueG1s',10,iconpath+'radio.png' ,  FANART,'','','','')
-    #addDir('[B][COLOR yellow]Int Tv[/COLOR][/B]','aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4SW50VFYueG1s',10,iconpath+'tvint.png' ,  FANART,'','','','')
-    #addDir('[B][COLOR blue]Sport Tv[/COLOR][/B]','Sport',100,iconpath+'sporttv.png' ,  FANART,'','','','')
-    #addDir('[B][COLOR yellow]Music Tv[/COLOR][/B]','aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4TXVzaWMueG1s',10,iconpath+'musictv.png' ,  FANART,'','','','')
-    addDir('[B][COLOR blue]Youtube[/COLOR][/B]','aHR0cDovL2RjdHYuY29tbHUuY29tL3htbC9JbmRleFl0dWJlLnhtbA==',10,iconpath+'youtube.png' ,  FANART,'','','','')
-    #addDir('[B][COLOR orange]WildHitz[/COLOR][/B]','wildhitz',49,iconpath+'wildhitz.png' ,  FANART,'','','','',isItFolder=False)
-    addDir('My Own List','My Own List',48,icon ,  FANART,'','','','')
-    #addDir('Test Url','Test Url',47,icon,  FANART,'','','','')
-    
+    try:
+        getData(base64.b64decode(DCTVBase),'')
+    except:
+        return
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
     from resources.lib.modules import cache, control, changelog
     cache.get(changelog.get, 600000000, control.addonInfo('version'), table='changelog')
 
 
 
-
-
-def CatIndex(url):
-    try :
-        getData(base64.b64decode(url),'')
-    except:
-        pass
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-    
-
-def IndexSport():
-    addDir('[B][COLOR orange]DutchSportstreams[/COLOR][/B]','Sport',101,iconpath+'sporttv.png' ,  FANART,'','','','')
-    try :
-        getData(base64.b64decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4U3BvcnQueG1s'),'')
-    except:
-        pass
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-
-def IndexDSS():
-    import geo
-    if geo.returnCountyCode() == "NL":
-        addDir('[B][COLOR yellow]bvls2016[/COLOR][/B]','Sport',102,iconpath+'sporttv.png' ,  FANART,'','','','')
-    addDir('[B][COLOR blue]feed2all[/COLOR][/B]','Sport',104,iconpath+'sporttv.png' ,  FANART,'','','','')
-    addDir('[B][COLOR yellow]wiz1.net[/COLOR][/B]','Sport',106,iconpath+'sporttv.png' ,  FANART,'','','','')
-    #addDir('[B][COLOR blue]goatd.net[/COLOR][/B]','Sport',107,iconpath+'sporttv.png' ,  FANART,'','','','')
-    if geo.returnCountyCode() == "NL":
-        addDir('[B][COLOR yellow]sport365[/COLOR][/B]','Sport',108,iconpath+'sporttv.png' ,  FANART,'','','','')
-    addDir('[B][COLOR blue]wizhdsports[/COLOR][/B]','Sport',109,iconpath+'sporttv.png' ,  FANART,'','','','')
-    addDir('[B][COLOR yellow]Live9[/COLOR][/B]','Sport',110,iconpath+'sporttv.png' ,  FANART,'','','','')
-    try :
-        getData(base64.b64decode('aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4ZHNzLnhtbA=='),'')
-    except:
-        pass
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-
-
-    
-
-
-def MyIndex():
-    if addon.getSetting('Pastebin_On1') == 'true':
-        MyBase1 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl1')
-    else:
-        MyBase1 = addon.getSetting('MyOwnListUrl1')
-    if addon.getSetting('Pastebin_On2') == 'true':
-        MyBase2 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl2')
-    else:
-        MyBase2 = addon.getSetting('MyOwnListUrl2')
-    if addon.getSetting('Pastebin_On3') == 'true':
-        MyBase3 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl3')
-    else:
-        MyBase3 = addon.getSetting('MyOwnListUrl3')
-    if addon.getSetting('Pastebin_On4') == 'true':
-        MyBase4 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl4')
-    else:
-        MyBase4 = addon.getSetting('MyOwnListUrl4')
-    if addon.getSetting('Pastebin_On5') == 'true':
-        MyBase5 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl5')
-    else:
-        MyBase5 = addon.getSetting('MyOwnListUrl5')
-    if addon.getSetting('Pastebin_On6') == 'true':
-        MyBase6 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl6')
-    else:
-        MyBase6 = addon.getSetting('MyOwnListUrl6')
-    if addon.getSetting('Pastebin_On7') == 'true':
-        MyBase7 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl7')
-    else:
-        MyBase7 = addon.getSetting('MyOwnListUrl7')
-    if addon.getSetting('Pastebin_On8') == 'true':
-        MyBase8 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl8')
-    else:
-        MyBase8 = addon.getSetting('MyOwnListUrl8')
-    if addon.getSetting('Pastebin_On9') == 'true':
-        MyBase9 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl9')
-    else:
-        MyBase9 = addon.getSetting('MyOwnListUrl9')
-    if addon.getSetting('Pastebin_On10') == 'true':
-        MyBase10 = 'http://pastebin.com/raw/' + addon.getSetting('MyOwnListUrl10')
-    else:
-        MyBase10 = addon.getSetting('MyOwnListUrl10')
-    addon_log("DCTVIndex")
-    addDir(addon.getSetting('MyOwnListTitle1'),MyBase1,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle2'),MyBase2,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle3'),MyBase3,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle4'),MyBase4,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle5'),MyBase5,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle6'),MyBase6,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle7'),MyBase7,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle8'),MyBase8,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle9'),MyBase9,6,icon ,  FANART,'','','','')
-    addDir(addon.getSetting('MyOwnListTitle10'),MyBase10,6,icon ,  FANART,'','','','')
-    
-    
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-        
-
-
-
-def Wildhitz():
-    playlist = 'http://wildhitz.nl/jw/playlist.src.rss.php?plc=&q=jw5&autostart=true&repeat=list'
-    xml_regex = '<title>(.*?)</title>\s*<jwplayer:file>(.*?)</jwplayer:file>'
-    pl=xbmc.PlayList(1)
-    pl.clear()
-    xml = makeRequest(playlist)
-    xml = re.compile(xml_regex, re.DOTALL).findall(xml)
-    for title, url in xml:
-        listitem = xbmcgui.ListItem('WildHitz | '+title,thumbnailImage=iconpath+'wildhitz.png')
-        xbmc.PlayList(1).add(url, listitem)
-    xbmc.Player().play(pl)
-		       
-
-def Nieuws():
-	text = ''
-	twit = 'http://dctv.comlu.com/xml/news.xml'
-	req = urllib2.Request(twit)
-	req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-	response = urllib2.urlopen(req)
-	link=response.read()
-	response.close()
-	match=re.compile("<title>(.+?)</title><pubDate>(.+?)</pubDate>",re.DOTALL).findall(link)
-	for status, dte in match:
-	    try:
-			    status = status.decode('ascii', 'ignore')
-	    except:
-			    status = status.decode('utf-8','ignore')
-	    dte = dte[:-15]
-	    status = status.replace('&amp;','')
-	    dte = '[COLOR blue][B]'+dte+'[/B][/COLOR]'
-	    text = text+dte+'\n'+status+'\n'+'\n'
-	showText('[COLOR blue][B]Dutch Cloud Tv Laaste Nieuws[/B][/COLOR]', text)
-
-
-
-def Privacy_Policy():
-	dialog = xbmcgui.Dialog()
-        dialog.ok("Privacy Policy", "No video or videos are hosted by dutch cloud tv.", "Any of the video you can find here may be gotten for free on sites like Justin.tv, Ustream.tv, Selfcast, bvls2016, and many others.Note we do not promise or guarantee our service and are not responsible for any action of our user's.We have no partnership and don't request to have partnership with any owner of video's or stream's given on our website.","All content is copyright of their respective owners.")
-        
-def showText(heading, text):
-    id = 10147
-    xbmc.executebuiltin('ActivateWindow(%d)' % id)
-    xbmc.sleep(100)
-    win = xbmcgui.Window(id)
-    retry = 50
-    while (retry > 0):
-	try:
-	    xbmc.sleep(10)
-	    retry -= 1
-	    win.getControl(1).setLabel(heading)
-	    win.getControl(5).setText(text)
-	    return
-	except:
-	    pass
 
 
 	
@@ -2480,129 +2296,7 @@ def playsetresolved(url,name,iconimage,setresolved=True):
         xbmc.executebuiltin('XBMC.RunPlugin('+url+')')      
 
 
-def AddBvls():
-    i=0
-    progress = xbmcgui.DialogProgress()
-    progress.create('Progress', 'Scanning Bvls2016.sc')
-    xmlurl = 'http://dutchsportstreams.com/xml/ds.xml'
-    req = urllib2.Request(xmlurl,None)
-    response = urllib2.urlopen(req)
-    xml = response.read()
-    response.close()
-    root = ET.fromstring(xml)
-    items = root.findall('item')
-    for item in items:
-        cname = item.find('title').text
-        lnk = item.find('url').text
-        print cname
-        addon_log("streamUrl: "+lnk)
-        frameHtml = bitly.OPEN_URL2(lnk, sourceSitebvls, bitly.getUserAgent())
-        b64coded = bitly.getBaseEncodedString(frameHtml)
-        streamUrl = bitly.getStreamUrl(b64coded)
-        addon_log("streamUrl: "+streamUrl)
-        i+=1
-        progress.update( 20+ (i*20), "", "Finding links.. stream%d"%i, "" )
 
-        if (bitly.getResponse(streamUrl)) :
-            color = 'green'
-        else :
-            color = 'red'
-        if streamUrl[-4:] == '.flv' :
-            streamUrl = bitly.VeetleId(streamUrl)
-        
-        addDir('[COLOR '+color+']Bvls2016.sc - ' + cname + '[/COLOR]',streamUrl,103,icon,fanart,'','','','',)
-    progress.close()
-
-
-
-def Catfeed2all():
-        addDir('Football' ,'football.html',105,icon ,  FANART,'','','','')
-        addDir('AM. Football' ,'american-football.html',105,icon ,  FANART,'','','','')
-        addDir('Basketball' ,'basketball.html',105,icon ,  FANART,'','','','')
-        addDir('Boxing/WWE/UFC' ,'boxing-wwe-ufc.html',105,icon ,  FANART,'','','','')
-        addDir('Rugby' ,'rugby.html',105,icon ,  FANART,'','','','')
-        addDir('Ice Hockey' ,'ice-hockey.html',105,icon ,  FANART,'','','','')
-        addDir('Tennis' ,'tennis.html',105,icon ,  FANART,'','','','')
-        addDir('Motorsport' ,'motosport.html',105,icon ,  FANART,'','','','')
-        addDir('Golf' ,'golf.html',105,icon ,  FANART,'','','','')
-        addDir('Baseball' ,'baseball.html',105,icon ,  FANART,'','','','')
-        addDir('Darts' ,'darts.html',105,icon ,  FANART,'','','','')
-        addDir('Snooker' ,'snooker.html',105,icon ,  FANART,'','','','')
-        addDir('Handball' ,'handball.html',105,icon ,  FANART,'','','','')
-        addDir('Cricket' ,'cricket.html',105,icon ,  FANART,'','','','')
-        addDir('Aussie Rules' ,'aussie-rules.html',105,icon ,  FANART,'','','','')
-        addDir('Others' ,'others.html',105,icon ,  FANART,'','','','')
-	return
-
-
-
-def Addthefeed2all(url):
-    pagecontent=bitly.OPEN_URL2('http://www.feed2allnow.eu/type/'+url,'http://www.feed2allnow.eu/',bitly.getUserAgent())
-    match1=re.compile('<span>\s*([^<]+)</span>\s*([^<]+) </a> </h3>.+?\s*.+?href=\'(.*?)\'',re.DOTALL).findall(pagecontent)
-    for dsstime,dssgame,dsslink in match1:
-        dsslink = 'http://www.feed2allnow.eu' + dsslink
-        if (bitly.getResponse(dsslink)):
-        
-            addDir('[B][COLOR yellow3]'+ dssgame+ '[/COLOR][/B]',dsslink,99,icon ,  FANART,'','','','')
-    #except:
-        #pass
-    try:
-        pagecontent=bitly.OPEN_URL2('http://www.feed2allnow.eu/type/'+url,'http://www.feed2allnow.eu/',bitly.getUserAgent())
-        match1=re.compile('<span class="matchtime">([^<]+)</span> </span>\s*([^<]+)</a> </h3>.+?\s*.+?href=\'([^<]+)\'',re.DOTALL).findall(pagecontent)
-        for dsstime,dssgame,dsslink in match1:
-            try:
-                dt = datetime.strptime(dsstime, "%H:%M")
-                dsstime = str(dt.hour+1).rjust(2,'0') + ':' + str(dt.minute).rjust(2,'0')
-            except :
-                pass        
-            dsslink = 'http://www.feed2allnow.eu' + dsslink
-            if (bitly.getResponse(dsslink)):
-                addDir('[B][COLOR yellow3]''('+dsstime+') '+ dssgame+ '[/COLOR][/B]',dsslink,99,icon ,  FANART,'','','','')
-    except:
-        pass
-
-def Addwiz():
-    pagecontent = bitly.OPEN_URL2('http://www.wiz1.net/lag10_home.php','http://www.wiz1.net/',bitly.getUserAgent())
-    match = re.compile(r'(\d{2}:\d{2}) <font color="#5185C9"><b>([^<]+)</b></font> ([^<]+)<a href="([^"]+)"', re.DOTALL | re.IGNORECASE).findall(pagecontent)
-    for dsstime, sport, game, dsslink in match:
-        try:
-            dt = datetime.strptime(dsstime, "%H:%M")
-            dsstime = str(dt.hour+0).rjust(2,'0') + ':' + str(dt.minute).rjust(2,'0')
-        except :
-            pass
-        #if 'Eredivisie' in sport or 'Belgium' in sport:
-            #addDir('[B][COLOR yellow3]''('+dsstime+') '+ game+ '[/COLOR][/B]',dsslink,21,icon ,  FANART,'','','','',isItFolder=False)
-        #if 'Netherlands' in game or 'Belgium' in game:
-        addDir('[B][COLOR yellow3]''('+sport+') '+'('+dsstime+') '+ game+ '[/COLOR][/B]',dsslink,99,icon ,  FANART,'','','','')
-        
-
-
-
-def Addlive9():
-    arenapage = bitly.OPEN_URL2('http://live9.net/','http://live9.net/',bitly.getUserAgent())
-    match = re.compile(r'(\d{2}:\d{2}) <font color="#ffea01"><b>([^<]+)</b></font> ([^<]+)<a href="([^"]+)"', re.DOTALL | re.IGNORECASE).findall(arenapage)
-    for tijd, sport, wedstrijd, url in match:
-        tekstregel = '[COLOR orange]' + tijd + '[/COLOR]' + ' - ' + sport + ' - ' + wedstrijd
-        url = url.replace("t/live","t/lives")
-        addDir(tekstregel, url, 99,icon ,  FANART,'','','','')
-    
-
-
-
-def Addgoatd():
-    dssport=''
-    goatpage = bitly.OPEN_URL2('http://goatd.net/','http://goatd.net/',bitly.getUserAgent())
-    match = re.compile(r'<b>ET</b></td>\s+<td[^<]+><img src="([^"]+)".*?href="([^"]+)"[^>]+>([^<]+)<.*?<b>([^<]+)<.*?<b>([^<]+)<', re.DOTALL | re.IGNORECASE).findall(goatpage)
-    for img, dsslink, dssgame, dsstime, dsszone in match:
-        try:
-            sport = re.compile('http://.*?/.*?/.*?/.*?/.*?/.*?/(.*?).gif', re.DOTALL | re.IGNORECASE).findall(img)
-            if sport > 0 :
-                for dssport in sport:
-                    dssport = re.sub("[^A-Za-z]", "", dssport) 
-        except:
-            pass
-        dsslink = 'http://goatd.net/' + dsslink
-        addDir('[B][COLOR yellow3]''('+dssport+') '+'('+dsstime+') '+dsszone+' '+ dssgame+ '[/COLOR][/B]',dsslink,99,icon ,  FANART,'','','','')
 
 def Colored(text = '', colorid = '', isBold = False):
     if colorid == 'ZM':
@@ -2624,70 +2318,6 @@ def convert(s):
     except:
         return s.group(0)
         
-def AddSports365Channels(url=None):
-    errored=True
-    import live365
-    #addDir(Colored("All times in local timezone.",'red') ,"" ,0 ,"","","","","","")		#name,url,mode,icon
-    videos=live365.getLinks()
-    for nm,link,active in videos:
-        if active:
-           
-            addDir(Colored(nm  ,'ZM'),link,98,icon ,  FANART,'','','','')
-        else:
-            addDir("[N/A]"+Colored(nm ,'blue') ,'',0,icon ,  FANART,'','','','')
-        errored=False
-    
-    #if errored:
-       #if RefreshResources([('live365.py','https:#')]):
-            #dialog = xbmcgui.Dialog()
-            #ok = dialog.ok('XBMC', 'No Links, so updated files dyamically, try again, just in case!')           
-            #print 'Updated files'
-    xbmcplugin.endOfDirectory(int(sys.argv[1]))
-
-
-def wizhdsports():
-    html = bitly.OPEN_URL2('http://wizhdsports.com/watch/live-football-streaming.html','http://wizhdsports.com/',bitly.getUserAgent())
-    _regex_encodedstring = re.compile("<div class=\"box\">(.*?)<div style=\"clear:both;\"></div>" , re.DOTALL)
-    html = _regex_encodedstring.search(html).group(1)
-    events = re.findall('<li class=\"channelLink\" onclick=\"location=\'.+?\';\"><a href=\"(.*?)\">(.*?)</a></li>',html)
-    for lnk, cname in events:
-        print lnk
-        print cname
-        addDir('[B][COLOR grey]'+ cname+ '[/COLOR][/B]',lnk,99,icon ,  FANART,'','','','')
-    html = bitly.OPEN_URL2('http://wizhdsports.com/index.html','http://wizhdsports.com/',bitly.getUserAgent())
-    events = re.findall('<span id=\"startTime.*?\">\s*(.*?)</span> -\s*<span id=\".*?\">\s*.*?</span>\s*</div>\s*<div class=\"name\">(.*?)</div>',html)
-    print events
-    for dsstime, cname in events:
-        lnk = cname.replace(' ', '-')
-        _regex_encodedstring = re.compile('/watch/'+lnk+'/(.*?).html' , re.DOTALL)
-        lnkend = _regex_encodedstring.search(html).group(1)
-        lnk = 'http://wizhdsports.com/watch/'+lnk+'/'+lnkend+'.html'
-        addDir('[B][COLOR yellow3]('+dsstime+')'+ cname+ '[/COLOR][/B]',lnk,99,icon ,  FANART,'','','','')
-
-
-def playBvls(name,url):
-    listitem = xbmcgui.ListItem( label = str(name), iconImage = "DefaultVideo.png", thumbnailImage = xbmc.getInfoImage( "ListItem.Thumb" ) )
-#    print "playing stream name: " + str(name)
-    xbmc.executebuiltin('XBMC.Notification(Visit www.bvls2016.sc , And keep Streams Alive !! ,10000,'+icon+')')
-    xbmc.Player( xbmc.PLAYER_CORE_AUTO ).play( url, listitem)
-
-
-
-def playSports365(url):
-    #print ('playSports365')
-    import live365
-    urlToPlay=live365.selectMatch(url)
-    if urlToPlay and len(urlToPlay)>0:
-        listitem = xbmcgui.ListItem( label = str(name), iconImage = "DefaultVideo.png", thumbnailImage = xbmc.getInfoImage( "ListItem.Thumb" ) )
-    #    print   "playing stream name: " + str(name)
-        xbmc.executebuiltin('XBMC.Notification(Visit sport365.live , And keep Streams Alive !! ,10000,'+icon+')')
-        xbmc.Player(  ).play( urlToPlay, listitem)  
-    else:
-        if RefreshResources([('live365.py','https://raw.githubusercontent.com/dutchsportstreams/DSS/master/plugin.video.cloudtv/live365.py')]):
-            dialog = xbmcgui.Dialog()
-            ok = dialog.ok('XBMC', 'No Links, so updated files dyamically, try again, just in case!')           
-            print 'Updated files'
-    return	 
 
 
 def resolver(url, name):

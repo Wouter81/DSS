@@ -1,6 +1,10 @@
 ******************************
 DutchNubesTv Addon Updates 
 ******************************
+[B]V4.6.1[/B]
+-Now only Youtube Channels
+- Clean addon
+
 [B]V4.6.0[/B]
 -Add Youtube Channels
 
