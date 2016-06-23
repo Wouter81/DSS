@@ -919,6 +919,16 @@ def getItems(items,fanart):
                         url="plugin://plugin.video.youtube/user/"+i.string+"/",
                         thumbnail= thumbnail,
                         folder=True )
+                elif len(item('ytplist')) >0:
+                    for i in item('ytplist'):
+                        thumbnail = item('thumbnail')[0].string
+                        title = item('title')[0].string
+                        plugintools.add_item( 
+                        #action="", 
+                        title=title,
+                        url="plugin://plugin.video.youtube/playlist/"+i.string+"/",
+                        thumbnail= thumbnail,
+                        folder=True )
                 elif len(item('utube')) >0:
                     for i in item('utube'):
                         if not i.string == None:

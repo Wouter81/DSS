@@ -1,6 +1,9 @@
 ******************************
 DutchNubesTv Addon Updates 
 ******************************
+[B]V4.6.2[/B]
+-Fixed Youtube Playlist List
+
 [B]V4.6.1[/B]
 -Now only Youtube Channels
 - Clean addon
