@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="repository.dss" name="Dutch Stream Service" version="1.8.2" provider-name="DSS">
+<addon id="repository.dss" name="DSS" version="1.8.3" provider-name="DSS">
 	<extension point="xbmc.addon.repository" name=" DSS Repository">
 		<info compressed="true">https://raw.githubusercontent.com/dutchsportstreams/DSS/master/addons.xml</info>
 		<checksum>https://raw.githubusercontent.com/dutchsportstreams/DSS/master/addons.xml.md5</checksum>
