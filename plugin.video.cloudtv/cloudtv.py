@@ -231,8 +231,8 @@ def makeRequest(url, headers=None):
 
 				
 def DCTVIndex():
-    dialog = xbmcgui.Dialog()
-    dialog.ok("DutchNubesTv", "Goodbye.", "")
+    #dialog = xbmcgui.Dialog()
+    #dialog.ok("DutchNubesTv", "Goodbye.", "")
    
     #addon_log("DCTVIndex")
     #addDir('[B][COLOR orange]Privacy Policy[/COLOR][/B]','Privacy Policy',45,'%s/p-p.png'% iconpath ,  FANART,'','','','')
@@ -241,7 +241,7 @@ def DCTVIndex():
     #addDir('[B][COLOR yellow]Int Tv[/COLOR][/B]','aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4SW50VFYueG1s',10,iconpath+'tvint.png' ,  FANART,'','','','')
     #addDir('[B][COLOR blue]Sport Tv[/COLOR][/B]','Sport',100,iconpath+'sporttv.png' ,  FANART,'','','','')
     #addDir('[B][COLOR yellow]Music Tv[/COLOR][/B]','aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4TXVzaWMueG1s',10,iconpath+'musictv.png' ,  FANART,'','','','')
-    #addDir('[B][COLOR blue]NL Youtube[/COLOR][/B]','aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL2R1dGNoc3BvcnRzdHJlYW1zL0RTUy9tYXN0ZXIveG1sL0luZGV4WXR1YmUueG1s',10,iconpath+'youtube.png' ,  FANART,'','','','')
+    addDir('[B][COLOR blue]Youtube[/COLOR][/B]','aHR0cDovL2RjdHYuY29tbHUuY29tL3htbC9JbmRleFl0dWJlLnhtbA==',10,iconpath+'youtube.png' ,  FANART,'','','','')
     #addDir('[B][COLOR orange]WildHitz[/COLOR][/B]','wildhitz',49,iconpath+'wildhitz.png' ,  FANART,'','','','',isItFolder=False)
     addDir('My Own List','My Own List',48,icon ,  FANART,'','','','')
     #addDir('Test Url','Test Url',47,icon,  FANART,'','','','')

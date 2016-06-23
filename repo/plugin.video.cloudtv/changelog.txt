@@ -1,10 +1,11 @@
 ******************************
-* DutchNubesTv Addon Updates *
+DutchNubesTv Addon Updates 
 ******************************
-
+[B]V4.6.0[/B]
+-Add Youtube Channels
 
 [B]V4.5.9[/B]
--Goodbye
+-Remove LiveStreams
 [B]V4.5.8[/B]
 -Remove goatd.net
 [B]V4.5.7[/B]
