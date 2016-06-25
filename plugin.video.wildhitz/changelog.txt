@@ -1,3 +1,12 @@
+====================================================================
+[COLOR gold]WildHitz addon by[/COLOR] [COLOR blue]DSS[/COLOR]
+====================================================================
+[COLOR red][B]V1.0.0[/B][/COLOR]
+- Add Recent
+- Add Popular
+- Add Search
+
+
 [B]V0.1.1[/B]
 - Remove Top3 there are no update's  
 
