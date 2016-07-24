@@ -179,9 +179,9 @@ def get_params():
 def Addtypes():
         import geo
         addDir('Club Channels' ,'sss',30,icon ,  FANART,'','','','')
-        if geo.returnCountyCode() == "NL":
-            addDir('Sport365.live' ,'Sport365',12,icon ,  FANART,'','','','')
-            addDir('Bvls2016.sc' ,'Bvls',13,icon ,  FANART,'','','','')
+        #if geo.returnCountyCode() == "NL":
+        addDir('Sport365.live' ,'Sport365',12,icon ,  FANART,'','','','')
+        addDir('Bvls2016.sc' ,'Bvls',13,icon ,  FANART,'','','','')
         addDir('Thefeed2all.eu' ,'sss',2,icon ,  FANART,'','','','')
         #addDir('Wiz1.net' ,'sss',20,icon ,  FANART,'','','','')
         #addDir('Goatd.net' ,'sss',22,icon ,  FANART,'','','','')
@@ -213,9 +213,10 @@ def getutfoffset():
 
 
 def AddBvls(url=None):
-    sourceSite = 'http://www.bvls2016.sc/'
+    i=0
     progress = xbmcgui.DialogProgress()
     progress.create('Progress', 'Scanning Bvls2016.sc')
+    sourceSite = 'http://www.bvls2016.sc/'
     xmlurl = 'http://dutchsportstreams.com/xml/ds.xml'
     req = urllib2.Request(xmlurl,None)
     response = urllib2.urlopen(req)
@@ -232,21 +233,26 @@ def AddBvls(url=None):
             frameHtml = getPage(lnk,'http://www.bvls2016.sc/', getUserAgent())
             b64coded = getBaseEncodedString(frameHtml)
             streamUrl = getStreamUrl(b64coded)
+            i+=1
+            progress.update( 15+ (i*15), "BVLS2016.SC", "Finding links.. stream%d"%i, "" )
         except :
             streamUrl = ''
         if (getResponse(streamUrl)) :
             color = 'green'
         else :
-            streamUrl = ''
+            #streamUrl = ''
             color = 'red'
+        if streamUrl.startswith('rtmp'):
+            
+            color = 'blue'
         if streamUrl[-4:] == '.flv' :
-            print('Veetle')
             streamUrl=VeetleId(streamUrl)
-        else :
-            print('M3U')
-        if 'youtube' in streamUrl:
-            streamUrl=streamUrl.replace('https://www.youtube.com/watch?v=', 'plugin://plugin.video.youtube/play/?video_id=').strip()
+        #else :
+            #print('M3U')
+        #if 'youtube' in streamUrl:
+            #streamUrl=streamUrl.replace('https://www.youtube.com/watch?v=', 'plugin://plugin.video.youtube/play/?video_id=').strip()
         addDir('[COLOR '+color+']Bvls2016.sc - '+cname.capitalize()+'[/COLOR]',streamUrl,14,icon ,  FANART,'','','','',isItFolder=False)
+        
     progress.close()
 
 def getResponse(url):
@@ -533,9 +539,14 @@ def sorted_nicely( l ):
     """ Sort the given iterable in the way that humans expect.""" 
     convert = lambda text: int(text) if text.isdigit() else text 
     alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key[1]) ] 
-    return sorted(l, key = alphanum_key) 
+    return sorted(l, key = alphanum_key)
 
-def getPage(page, referer=None, ua=None):
+
+
+
+def getPage(page, referer=None, ua=None, cookieJar=None,post=None,timeout=5):
+    cookie_handler = urllib2.HTTPCookieProcessor(cookieJar)
+    opener = urllib2.build_opener(cookie_handler, urllib2.HTTPBasicAuthHandler(), urllib2.HTTPHandler())
     url = page                                                           
     try:                                                                 
         req = urllib2.Request(url ,None)                                                                          
@@ -548,8 +559,9 @@ def getPage(page, referer=None, ua=None):
         req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')               
         req.add_header('Accept-Language', 'nl,en-US;q=0.7,en;q=0.3')                                              
         req.add_header('Accept-Encoding', 'deflate')                                                        
-        req.add_header('Connection', 'keep-alive')                                                                
-        response = urllib2.urlopen(req)                                            
+        req.add_header('Connection', 'keep-alive')
+        response = opener.open(req,post,timeout=timeout)
+        #response = urllib2.urlopen(req,post,timeout)                                            
         data = response.read()                                                                                    
         response.close()                                                                                          
         if(ua is None) :                                                                                          
