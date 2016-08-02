@@ -208,7 +208,7 @@ def CatJukebox():
 
 
 def Jukebox(cat):
-   url = base64.b64decode('aHR0cDovL2RjdHYuY29tbHUuY29tL3htbC93aWxkamIueG1s')
+   url = base64.b64decode('aHR0cDovL3d3dy5kdXRjaHNwb3J0c3RyZWFtcy5jb20veG1sL25ldy1kYXRhLnhtbA==')
    content = make_request(url)
    root = ET.fromstring(content)
    items = root.findall('item')
