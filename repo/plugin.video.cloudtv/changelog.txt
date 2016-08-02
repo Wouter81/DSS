@@ -1,6 +1,9 @@
 ******************************
 DutchNubesTv Addon Updates 
 ******************************
+[B]V4.6.3[/B]
+-Fixed Dead Links
+
 [B]V4.6.2[/B]
 -Fixed Youtube Playlist List
 

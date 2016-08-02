@@ -48,7 +48,7 @@ class NoRedirection(urllib2.HTTPErrorProcessor):
 
 
 sourceSitebvls = 'http://www.bvls2016.sc/'      
-DCTVBase = 'aHR0cDovL2RjdHYuY29tbHUuY29tL3htbC9JbmRleFl0dWJlLnhtbA=='
+DCTVBase = 'aHR0cDovL2R1dGNoc3BvcnRzdHJlYW1zLmNvbS9udWJlcy94bWwvSW5kZXhZdHViZS54bWw='
 addon = xbmcaddon.Addon('plugin.video.cloudtv')
 profile = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
 home = xbmc.translatePath(addon.getAddonInfo('path').decode('utf-8'))
