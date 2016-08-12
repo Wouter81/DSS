@@ -126,8 +126,8 @@ def postHtml(url, form_data={}, headers={}, compression=True):
 
 
 def Addtypes():
-   addDir('Play Metal' ,'Live On Air',2,icon ,  FANART,'','','','')
-   addDir('Play Rock' ,'Live On Air',3,icon ,  FANART,'','','','')
+   addDir('Play Metal' ,'http://arrow.tv/metal/account/register',2,icon ,  FANART,'','','','')
+   addDir('Play Rock' ,'http://arrow.tv/rock/account/register',2,icon ,  FANART,'','','','')
    from resources.lib.modules import cache, control, changelog
    cache.get(changelog.get, 600000000, control.addonInfo('version'), table='changelog')
 
@@ -137,7 +137,7 @@ def Addtypes():
          
 
 
-def Metal_playlist():
+def Arrow_playlist(url):
    headers2 = {'User-Agent': USER_AGENT,
            'campaign':'arrowConfigService.campaign',
            'eventId':'reg'}
@@ -145,7 +145,7 @@ def Metal_playlist():
    pl=xbmc.PlayList(1)
    pl.clear()
    payload = {'campaign':'arrowConfigService.campaign'},{'eventId':'reg'}
-   livejson = postHtml('http://arrow.tv/metal/account/register', headers2)
+   livejson = postHtml(url, headers2)
    livejson = json.loads(livejson)
    streamlist = livejson["playlist"]
    for stream in streamlist:
@@ -157,78 +157,12 @@ def Metal_playlist():
             url = urlx["file"]
             song = artist +' - '+title
             #print url
+            if "m3u8" in url :
 
    
-            listitem = xbmcgui.ListItem('Arrow.tv - '+song,thumbnailImage=icon)
-            xbmc.PlayList(1).add(url, listitem)
+                listitem = xbmcgui.ListItem('Arrow.tv - '+song,thumbnailImage=icon)
+                xbmc.PlayList(1).add(url, listitem)
    xbmc.Player().play(pl)
-
-
-
-
-def Rock_playlist():
-   headers2 = {'User-Agent': USER_AGENT,
-           'campaign':'arrowConfigService.campaign',
-           'eventId':'reg'}
-   
-   pl=xbmc.PlayList(1)
-   pl.clear()
-   payload = {'campaign':'arrowConfigService.campaign'},{'eventId':'reg'}
-   livejson = postHtml('http://arrow.tv/rock/account/register', headers2)
-   livejson = json.loads(livejson)
-   streamlist = livejson["playlist"]
-   for stream in streamlist:
-        #print stream
-        artist = stream["info"]["artist"]
-        title = stream["info"]["title"]
-        urllist = stream["sources"]
-        for urlx in urllist:
-            url = urlx["file"]
-            song = artist +' - '+title
-            #print url
-
-   
-            listitem = xbmcgui.ListItem('Arrow.tv - '+song,thumbnailImage=icon)
-            xbmc.PlayList(1).add(url, listitem)
-   xbmc.Player().play(pl)
-
-
-
-   
-
-
-
-
-    
-
-
-
-
-
-
-
-def playmix(name,url):
-   
-   listitem = xbmcgui.ListItem( label = str(name), iconImage = "DefaultVideo.png", thumbnailImage = xbmc.getInfoImage( "ListItem.Thumb" ) )
-
-   xbmc.Player( xbmc.PLAYER_CORE_AUTO ).play( url, listitem)
-
-
- 
-
-
-
-
-def Playlist(url):
-   xml = '<?xml version="1.0"?>\n'+make_request(playlist)
-   #xml = filter(lambda x: not x.isspace(), xml)
-   xml = re.compile(xml_regex, re.DOTALL).findall(xml)
-   for title, url in xml:
-      if title is not "-":
-         print title
-         print url
-         addDir(title ,url,5,icon ,  FANART,'','','','')
-    
 
 
 
@@ -241,21 +175,6 @@ def getResponse(url):
             return False
     except:
         return False
-    
-
-
-
-
-
-
-
-
-
-    
-        
-
-
-
 
 
 def get_params():
@@ -313,10 +232,8 @@ try:
       print "InAddTypes"
       Addtypes()
    elif mode==2 :
-      Metal_playlist()
-   elif mode==3 :
-      Rock_playlist()
-   
+      Arrow_playlist(url)
+
 
 
 
