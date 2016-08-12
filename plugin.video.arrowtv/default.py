@@ -28,6 +28,7 @@ profile_path =  xbmc.translatePath(selfAddon.getAddonInfo('profile'))
 home = xbmc.translatePath(addon.getAddonInfo('path').decode('utf-8')) 
 icon = os.path.join(home, 'icon.png')
 FANART = os.path.join(home, 'fanart.jpg')
+iconpath = xbmc.translatePath(os.path.join(home, 'resources/icons/'))
 
 addonDir = addon.getAddonInfo('path').decode("utf-8")
 libDir = os.path.join(addonDir, 'resources', 'lib')
@@ -126,8 +127,9 @@ def postHtml(url, form_data={}, headers={}, compression=True):
 
 
 def Addtypes():
-   addDir('Play Metal' ,'http://arrow.tv/metal/account/register',2,icon ,  FANART,'','','','')
-   addDir('Play Rock' ,'http://arrow.tv/rock/account/register',2,icon ,  FANART,'','','','')
+   addDir('ARROW.TV - Playlist Metal' ,'http://arrow.tv/metal/account/register',2,iconpath+'metal.png' ,  iconpath+'metal.png','','','','')
+   addDir('ARROW.TV - Playlist Rock' ,'http://arrow.tv/rock/account/register',2,iconpath+'rock.png' ,  iconpath+'rock.png','','','','')
+   addDir('ARROW.TV - Playlist Hitz' ,'http://arrow.tv/hitz/account/register',2,iconpath+'hitz.png' ,  iconpath+'hitz.png','','','','')
    from resources.lib.modules import cache, control, changelog
    cache.get(changelog.get, 600000000, control.addonInfo('version'), table='changelog')
 
@@ -137,7 +139,7 @@ def Addtypes():
          
 
 
-def Arrow_playlist(url):
+def Arrow_playlist(link):
    headers2 = {'User-Agent': USER_AGENT,
            'campaign':'arrowConfigService.campaign',
            'eventId':'reg'}
@@ -145,7 +147,7 @@ def Arrow_playlist(url):
    pl=xbmc.PlayList(1)
    pl.clear()
    payload = {'campaign':'arrowConfigService.campaign'},{'eventId':'reg'}
-   livejson = postHtml(url, headers2)
+   livejson = postHtml(link, headers2)
    livejson = json.loads(livejson)
    streamlist = livejson["playlist"]
    for stream in streamlist:
@@ -160,9 +162,10 @@ def Arrow_playlist(url):
             if "m3u8" in url :
 
    
-                listitem = xbmcgui.ListItem('Arrow.tv - '+song,thumbnailImage=icon)
+                listitem = xbmcgui.ListItem(song,thumbnailImage=icon)
                 xbmc.PlayList(1).add(url, listitem)
    xbmc.Player().play(pl)
+
 
 
 

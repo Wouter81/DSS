@@ -1,6 +1,9 @@
 ====================================================================
-[COLOR gold]Arrow TV addon by[/COLOR] [COLOR blue]DSS[/COLOR]
+[COLOR gold]ARROW.TV addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
+[COLOR red][B]V1.0.2[/B][/COLOR]
+- Add Hitz
+
 [COLOR red][B]V1.0.1[/B][/COLOR]
 - Fixed double songs
 

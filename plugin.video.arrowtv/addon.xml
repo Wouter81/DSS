@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.arrowtv"
-       name="Arrow.tv"
-       version="1.0.1"
+       name="ARROW.TV"
+       version="1.0.2"
        provider-name="DSS">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
@@ -12,8 +12,8 @@
 	<provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-	<summary lang="en">Arrow.tv</summary>
-    <description lang="en">Arrow.tv</description>
+	<summary lang="en">AARROW.TV</summary>
+    <description lang="en">ARROW.TV</description>
     <platform>all</platform>
   </extension>
 </addon>
