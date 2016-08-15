@@ -1,7 +1,10 @@
 ====================================================================
 [COLOR gold]WildHitz addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
-[COLOR red][B]V1.0.0[/B][/COLOR]
+[COLOR red][B]V1.0.2[/B][/COLOR]
+- change in code
+
+[COLOR red][B]V1.0.1[/B][/COLOR]
 - Fixed dead link
 
 [COLOR red][B]V1.0.0[/B][/COLOR]

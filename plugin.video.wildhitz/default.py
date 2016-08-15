@@ -14,6 +14,11 @@ import traceback,cookielib
 from resources.lib.modules import control
 from resources.lib.modules.log_utils import log
 
+try:
+    import json
+except:
+    import simplejson as json
+
 wildlink = base64.b64decode('aHR0cDovL3dpbGRoaXR6LnJyLmtwbnN0cmVhbWluZy5ubC9obHMvdm9kL3dpbGRoaXR6L21wNHMv')          
 wildqt = base64.b64decode('LzcyMHAyMDAwLm1wNA==')
 API = base64.b64decode('aHR0cDovL3dpbGRoaXR6Lm5sL0FQSS9zb25ncy9HZXRTb25ncy5waHA/JnR5cGU9')
@@ -122,10 +127,10 @@ def sorted_nicely( l ):
 
 def Addtypes():
    addDir('Live On Air' ,playlist,2,icon ,  FANART,'','','','')
-   addDir('Recent' ,'Recent',9,icon ,  FANART,'','','','')
-   addDir('Popular' ,'Popular',11,icon ,  FANART,'','','','')
-   addDir('Weekend Mix' ,'weekendmix',3,icon ,  FANART,'','','','')
-   addDir('Daily Mix' ,'dailymix',5,icon ,  FANART,'','','','')
+   addDir('Recent' ,API+'recent',9,icon ,  FANART,'','','','')
+   addDir('Popular' ,API+'popular',9,icon ,  FANART,'','','','')
+   addDir('Weekend Mix' ,'http://pastebin.com/raw/C0H0i8f9',5,icon ,  FANART,'','','','')
+   addDir('Daily Mix' ,'http://pastebin.com/raw/Sv1vLn0X',5,icon ,  FANART,'','','','')
    #addDir('Top 3' ,'top3',4,icon ,  FANART,'','','','')
    addDir('Playlist' ,'top3',6,icon ,  FANART,'','','','')
    addDir('VideoClips' ,'jukebox',8,icon ,  FANART,'','','','')
@@ -227,38 +232,23 @@ def Jukebox(cat):
             if title3 == cat:
                addDir(title ,link,10,icon ,  FANART,'','','','')
 
-def Recent():
-   regex = base64.b64decode('ImFydGlzdCI6IiguKj8pIiwidGl0bGUiOiIoLio/KSIsInRodW1iIjoiaHR0cDovL3dpbGRoaXRzdmlkZW92b2QuZG93bmxvYWQua3Buc3RyZWFtaW5nLm5sL3RodW1icy8oLio/KS5wbmci')
-   url = API+'recent'
+def Wildscan(url):
+   
    try:
-      link = GetHTML(url)
-      link = link.replace("\\","")
-      xml = re.compile(regex, re.DOTALL).findall(link)
-      for name, title, link in xml:
-         url2 = wildlink+link+wildqt
-         title = name+' - '+title 
-         title = title.replace("&amp;","and")
-         title = title.replace("&","and")
-         addDir(title ,url2,10,icon ,  FANART,'','','','')
-   except:
-      pass
-      
-def Popular():
-   regex = base64.b64decode('ImFydGlzdCI6IiguKj8pIiwidGl0bGUiOiIoLio/KSIsInRodW1iIjoiaHR0cDovL3dpbGRoaXRzdmlkZW92b2QuZG93bmxvYWQua3Buc3RyZWFtaW5nLm5sL3RodW1icy8oLio/KS5wbmci')
-   url = API+'popular'
-   try:
-      link = GetHTML(url)
-      link = link.replace("\\","")
-      xml = re.compile(regex, re.DOTALL).findall(link)
-      for name, title, link in xml:
-         url2 = wildlink+link+wildqt
-         title = name+' - '+title 
-         title = title.replace("&amp;","and")
-         title = title.replace("&","and")
-         addDir(title ,url2,10,icon ,  FANART,'','','','')
-   except:
-      pass
+      livejson = GetHTML(url)
+      livejson = json.loads(livejson)
+      streamlist = livejson["items"]
+      for items in streamlist:
+         artist = items["artist"]
+         title = items["title"]
+         link = items["preview"].replace("272p400","720p2000").replace(base64.b64decode('aHR0cDovL3dpbGRoaXRzdmlkZW92b2QuZG93bmxvYWQua3Buc3RyZWFtaW5nLm5sLw=='),base64.b64decode('aHR0cDovL3dpbGRoaXR6LnJyLmtwbnN0cmVhbWluZy5ubC9obHMvdm9kL3dpbGRoaXR6Lw=='))
+         song = artist+' - '+title
+         song = song.replace("&amp;","and").replace("&","and")
+         addDir(song ,link,10,icon ,  FANART,'','','','')
 
+   except:
+      pass
+   
 
 def Search():
    keyboard = xbmc.Keyboard('', 'Enter Artits/Title:', False)
@@ -267,34 +257,13 @@ def Search():
       query = keyboard.getText()
    else:
       return
-   regex = base64.b64decode('ImFydGlzdCI6IiguKj8pIiwidGl0bGUiOiIoLio/KSIsInRodW1iIjoiaHR0cDovL3dpbGRoaXRzdmlkZW92b2QuZG93bmxvYWQua3Buc3RyZWFtaW5nLm5sL3RodW1icy8oLio/KS5wbmci')
-   url = API+'search&search='+query
-   try:
-      link = GetHTML(url)
-      link = link.replace("\\","")
-      xml = re.compile(regex, re.DOTALL).findall(link)
-      for name, title, link in xml:
-         url2 = wildlink+link+wildqt
-         title = name+' - '+title 
-         title = title.replace("&amp;","and")
-         title = title.replace("&","and")
-         addDir(title ,url2,10,icon ,  FANART,'','','','')
-   except:
-      pass
+   Wildscan(API+'search&search='+query)
+
    
 
-def Weekendmix():
-   url = 'http://pastebin.com/raw/C0H0i8f9'
-   content = make_request(url)
-   root = ET.fromstring(content)
-   items = root.findall('item')
-   for item in items:
-      title = item.find('title').text
-      link = item.find('link').text
-      addDir(title ,link,10,icon ,  FANART,'','','','')
 
-def Dailymix():
-   url = 'http://pastebin.com/raw/Sv1vLn0X'
+
+def Wildmix(url):
    content = make_request(url)
    root = ET.fromstring(content)
    items = root.findall('item')
@@ -447,7 +416,7 @@ try:
    elif mode==4 :
       Wildhitz_top3()
    elif mode==5 :
-      Dailymix()
+      Wildmix(url)
    elif mode==6 :
       Addplaylist()
    elif mode==7 :
@@ -455,11 +424,10 @@ try:
    elif mode==8 :
       CatJukebox()
    elif mode==9 :
-      Recent()
+      Wildscan(url)
    elif mode==10 :
       playmix(name,url)
-   elif mode==11 :
-      Popular()
+
    elif mode==12 :
       Search()
 
