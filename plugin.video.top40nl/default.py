@@ -114,9 +114,23 @@ def hitlist(url):
                 credit = credit.encode('utf-8')
                 prev_position = x['prev_position']
                 cover_img_url_medium = x['cover_img_url_medium']
+                if cover_img_url_medium == None:
+                    cover_img_url_medium = ''
+                else:
+                    cover_img_url_medium = x['cover_img_url_medium']
                 cover_img_url_large = x['cover_img_url_large']
+                if cover_img_url_large == None :
+                    cover_img_url_large = ''
+                else:
+                    cover_img_url_large = x['cover_img_url_large']
                 youtube_url = x['youtube_url']
-                trackid = '[COLOR green]['+str(position)+'][/COLOR]<-[COLOR yellow]['+str(prev_position)+'][/COLOR][COLOR orange] '+credit+' - '+title+'[/COLOR]'
+                if youtube_url == None :
+                    Noclip = ' [Geen Video Clip]'
+                    youtube_url = 'http://'   
+                else:
+                    Noclip = ''
+                    youtube_url = x['youtube_url']
+                trackid = '[COLOR green]['+str(position)+'][/COLOR]<-[COLOR yellow]['+str(prev_position)+'][/COLOR][COLOR orange] '+credit+' - '+title+'[/COLOR] '+Noclip
                 addLink(trackid ,youtube_url,3,cover_img_url_medium,cover_img_url_large)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
     except:
@@ -255,9 +269,23 @@ def tiplist(url):
                 credit = credit.encode('utf-8')
                 prev_position = x['prev_position']
                 cover_img_url_medium = x['cover_img_url_medium']
+                if cover_img_url_medium == None:
+                    cover_img_url_medium = ''
+                else:
+                    cover_img_url_medium = x['cover_img_url_medium']
                 cover_img_url_large = x['cover_img_url_large']
+                if cover_img_url_large == None :
+                    cover_img_url_large = ''
+                else:
+                    cover_img_url_large = x['cover_img_url_large']
                 youtube_url = x['youtube_url']
-                trackid = '[COLOR green]['+str(position)+'][/COLOR]<-[COLOR yellow]['+str(prev_position)+'][/COLOR][COLOR orange] '+credit+' - '+title+'[/COLOR]'
+                if youtube_url == None :
+                    Noclip = ' [Geen Video Clip]'
+                    youtube_url = 'http://'   
+                else:
+                    Noclip = ''
+                    youtube_url = x['youtube_url']
+                trackid = '[COLOR green]['+str(position)+'][/COLOR]<-[COLOR yellow]['+str(prev_position)+'][/COLOR][COLOR orange] '+credit+' - '+title+'[/COLOR] '+Noclip
                 addLink(trackid ,youtube_url,3,cover_img_url_medium,cover_img_url_large)
         xbmcplugin.endOfDirectory(int(sys.argv[1]))
     except:
