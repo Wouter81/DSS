@@ -140,7 +140,7 @@ Andy van der Meijde - Official
 
 <addon id="plugin.video.top40nl"
        name="Top40.nl"
-       version="1.0.2"
+       version="1.0.3"
        provider-name="DSS">
     <requires>
         <import addon="xbmc.python" version="2.19.0"/>

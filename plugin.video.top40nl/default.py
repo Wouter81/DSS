@@ -3,6 +3,7 @@
 import urllib,urllib2,re, cookielib, urlparse, httplib
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon,sys,time, os, gzip, socket
 import time, datetime
+from datetime import date, datetime, timedelta
 
 try:
     import json
@@ -18,16 +19,6 @@ profile_path =  xbmc.translatePath(selfAddon.getAddonInfo('profile'))
 home = xbmc.translatePath(addon.getAddonInfo('path').decode('utf-8')) 
 icon = os.path.join(home, 'icon.png')
 fanart = os.path.join(home, 'fanart.jpg')
-
-addonDir = addon.getAddonInfo('path').decode("utf-8")
-libDir = os.path.join(addonDir, 'resources', 'lib')
-profile = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
-home = xbmc.translatePath(addon.getAddonInfo('path').decode('utf-8'))
-favorites = os.path.join(profile, 'favorites')
-history = os.path.join(profile, 'history')
- 
-if not os.path.exists(profile):
-    os.makedirs(profile)
 
 
 addon_handle = int(sys.argv[1])
@@ -46,7 +37,7 @@ def MainDir():
 
 def Top40():
     ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y')
+    st = datetime.fromtimestamp(ts).strftime('%Y')
     
     st = int(st)
     while st != 1964:
@@ -56,7 +47,7 @@ def Top40():
 
 def Tipparade():
     ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y')
+    st = datetime.fromtimestamp(ts).strftime('%Y')
     
     st = int(st)
     while st != 1966:
@@ -72,7 +63,7 @@ def weeknumbers(url):
     b= 0
     xweek = 0 
     ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
+    st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
     rdate = firstweek(year) 
     try:
         while str(url) == str(year) and b < maxweek:
@@ -86,10 +77,12 @@ def weeknumbers(url):
                 if str(url) == str(year) :
                     progress.update( 1+ (int(week)*2), "Scanning Top40.nl Year %d"%year, "Finding week %d"%week, "" )
                     if xweek != week: 
-                        addDir('Top40.nl '+str(year)+' week '+str(week) ,xdate,2,icon)
-            
-                xdate = datetime.datetime.strptime(xdate, '%Y-%m-%d')
-                xdate = xdate + datetime.timedelta(days=7)
+                        addDir('Top40.nl '+str(year)+' week '+str(week) ,xdate,2,icon)   
+                try:
+                    xdate = datetime.strptime(xdate, '%Y-%m-%d')
+                except TypeError:
+                    xdate = datetime(*(time.strptime(xdate, '%Y-%m-%d')[0:6]))
+                xdate = xdate + timedelta(days=7)
                 xdate = xdate.strftime('%Y-%m-%d')
                 rdate = xdate
                 b = b+1
@@ -150,8 +143,12 @@ def firstweek(_year):
                 year =i['year']
                 week =i['week']
                 xdate = i['date']
-                _date = datetime.datetime.strptime(_date, '%Y-%m-%d')
-                _date = _date + datetime.timedelta(days=1)
+                xdate = xdate.encode('utf-8')
+                try:
+                    _date = datetime.strptime(_date, '%Y-%m-%d')
+                except TypeError:
+                    _date = datetime(*(time.strptime(_date, '%Y-%m-%d')[0:6]))
+                _date = _date + timedelta(days=1)
                 _date = _date.strftime('%Y-%m-%d')
         return xdate
     except:
@@ -169,8 +166,11 @@ def tipfirstweek(_year):
                 year =i['year']
                 week =i['week']
                 xdate = i['date']
-                _date = datetime.datetime.strptime(_date, '%Y-%m-%d')
-                _date = _date + datetime.timedelta(days=1)
+                try:
+                    _date = datetime.strptime(_date, '%Y-%m-%d')
+                except TypeError:
+                    _date = datetime(*(time.strptime(_date, '%Y-%m-%d')[0:6]))
+                _date = _date + timedelta(days=1)
                 _date = _date.strftime('%Y-%m-%d')
         return xdate
     except:
@@ -179,7 +179,7 @@ def tipfirstweek(_year):
 def lastweek(_year):
     _date = str(_year)+'-12-31'
     ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
+    st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
     try:
         data = GetHTML('http://www.top40.nl/app_api/top40_json/1?date='+_date)
         data = json.loads(data)
@@ -201,7 +201,7 @@ def lastweek(_year):
 def tiplastweek(_year):
     _date = str(_year)+'-12-31'
     ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
+    st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
     try:
         data = GetHTML('http://www.top40.nl/app_api/top40_json/3?date='+_date)
         data = json.loads(data)
@@ -228,24 +228,25 @@ def tipweeknumbers(url):
     b= 0
     xweek = 0 
     ts = time.time()
-    st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
+    st = datetime.fromtimestamp(ts).strftime('%Y-%m-%d')
     rdate = tipfirstweek(year) 
     try:
         while str(url) == str(year) and b < maxweek:
             data = GetHTML('http://www.top40.nl/app_api/top40_json/3?date='+rdate)
             data = json.loads(data)
-            for i in data:
-                
+            for i in data:                
                 year =i['year']
                 week =i['week']
                 xdate = i['date']
                 if str(url) == str(year) :
                     progress.update( 1+ (int(week)*2), "Scanning Top40.nl Tipparade Year %d"%year, "Finding week %d"%week, "" )
                     if xweek != week: 
-                        addDir('Top40.nl Tipparade'+str(year)+' week '+str(week) ,xdate,7,icon)
-            
-                xdate = datetime.datetime.strptime(xdate, '%Y-%m-%d')
-                xdate = xdate + datetime.timedelta(days=7)
+                        addDir('Top40.nl Tipparade '+str(year)+' week '+str(week) ,xdate,7,icon) 
+                try:
+                    xdate = datetime.strptime(xdate, '%Y-%m-%d')
+                except TypeError:
+                    xdate = datetime(*(time.strptime(xdate, '%Y-%m-%d')[0:6]))
+                xdate = xdate + timedelta(days=7)
                 xdate = xdate.strftime('%Y-%m-%d')
                 rdate = xdate
                 b = b+1

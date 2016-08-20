@@ -1,6 +1,9 @@
 ====================================================================
 [COLOR gold]Top40.nl addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
+[COLOR red][B]V1.0.3[/B][/COLOR]
+- Fixed Date bug
+
 [COLOR red][B]V1.0.2[/B][/COLOR]
 - Fixed bug in Tipparade
 
