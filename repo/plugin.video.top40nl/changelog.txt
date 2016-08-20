@@ -1,0 +1,10 @@
+====================================================================
+[COLOR gold]Top40.nl addon by[/COLOR] [COLOR blue]DSS[/COLOR]
+====================================================================
+[COLOR red][B]V1.0.1[/B][/COLOR]
+- New main menu
+- Add Tipparade
+- Add Top40 Radio
+
+[COLOR red][B]V1.0.0[/B][/COLOR]
+- Release
