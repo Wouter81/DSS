@@ -1,12 +1,12 @@
-import xbmc, xbmcgui, xbmcplugin
-import urllib2,urllib,cgi, re, urlresolver  
+
+import urllib2,urllib,cgi, re  
 import urlparse
 import HTMLParser
-import xbmcaddon
+
 from operator import itemgetter
 import traceback,cookielib
 import base64,os,  binascii
-import CustomPlayer,uuid
+
 from time import time
 import base64,sys
 try:
@@ -14,14 +14,63 @@ try:
 except:
     import simplejson as json
 
-__addon__       = xbmcaddon.Addon()
-__addonname__   = __addon__.getAddonInfo('name')
-__icon__        = __addon__.getAddonInfo('icon')
-addon_id = 'plugin.video.dss'
-selfAddon = xbmcaddon.Addon(id=addon_id)
-profile_path =  xbmc.translatePath(selfAddon.getAddonInfo('profile'))
-S365COOKIEFILE='s365CookieFile.lwp'
-S365COOKIEFILE=os.path.join(profile_path, S365COOKIEFILE)
+useragent='Mozilla/5.0 (iPhone; CPU iPhone OS 9_0_2 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13A452 Safari/601.1'
+#useragent='Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19'
+lastfinalurl=''
+
+def getUrl(mainurl, cookieJar=None,post=None, timeout=20, headers=None, useproxy=True):
+    global lastfinalurl
+    lastfinalurl=''
+    url=mainurl
+    cookie_handler = urllib2.HTTPCookieProcessor(cookieJar)
+    opener = urllib2.build_opener(cookie_handler, urllib2.HTTPBasicAuthHandler(), urllib2.HTTPHandler())
+    #opener = urllib2.install_opener(opener)
+    req = urllib2.Request(url)
+    req.add_header('User-Agent',useragent)
+    if headers:
+        for h,hv in headers:
+            req.add_header(h,hv)
+    
+    if '|' in url:
+        url,header_in_page=url.split('|')
+        header_in_page=header_in_page.split('&')
+        
+        for h in header_in_page:
+            
+            n,v=h.split('=')
+            req.add_header(h,v)
+    link=""
+    try:
+        response = opener.open(req,post,timeout=timeout)
+
+        lastfinalurl = response.geturl()
+        link=response.read()
+        response.close()
+    except: pass
+    if link=="" and useproxy: 
+        
+        for retry in range(4):
+            try:
+                link=getUrlWithWebProxy(mainurl,cookieJar,post,timeout,headers)
+                if not link=="": break
+            except: pass
+    return link;
+
+try:
+    import xbmc, xbmcgui, xbmcplugin
+    import xbmcaddon
+    import CustomPlayer,uuid
+    __addon__       = xbmcaddon.Addon()
+    __addonname__   = __addon__.getAddonInfo('name')
+    __icon__        = __addon__.getAddonInfo('icon')
+    addon_id = 'plugin.video.dss'
+    selfAddon = xbmcaddon.Addon(id=addon_id)
+    profile_path =  xbmc.translatePath(selfAddon.getAddonInfo('profile'))
+    S365COOKIEFILE='s365CookieFile.lwp'
+    S365COOKIEFILE=os.path.join(profile_path, S365COOKIEFILE)
+except: pass
+
+
 
 
 def tr(param1 , param2 , param3):
@@ -58,7 +107,10 @@ def swapme(st, fromstr , tostr):
 
      
 def decode(encstring):
+    print 'before',encstring
     encstring=tr(encstring ,114,65)
+    print 'encstring tr',encstring
+    print 'enc done'
     mc_from="0BwtxmczunMQR6vVlND3LXa4oA"
     mc_to="p9U1bsyZIHf8YWg5GiJ2Tekd7="
     if 1==2:#encstring.endswith("!"):
@@ -71,13 +123,97 @@ def decode(encstring):
         st=swapme(st, mc_from[i], mc_to[i])
     print st
     return st.decode("base64")
-def getUrl(url, cookieJar=None,post=None, timeout=20, headers=None):
+    
 
-    cookie_handler = urllib2.HTTPCookieProcessor(cookieJar)
-    opener = urllib2.build_opener(cookie_handler, urllib2.HTTPBasicAuthHandler(), urllib2.HTTPHandler())
-    #opener = urllib2.install_opener(opener)
+
+    #function arcfour(k,d) {var o='';s=new Array();var n=256;l=k.length;for(var i=0;i<n;i++){s[i]=i;}for(var j=i=0;i<n;i++){j=(j+s[i]+k.charCodeAt(i%l))%n;var x=s[i];s[i]=s[j];s[j]=x;}for(var i=j=y=0;y<d.length;y++){i=(i+1)%n;j=(j+s[i])%n;x=s[i];s[i]=s[j];s[j]=x;o+=String.fromCharCode(d.charCodeAt(y)^s[(s[i]+s[j])%n]);}return o;}
+def  arcfour(k,d):
+    o='';    
+    n=256;
+    l=len(k);
+    s=range(0,n)    
+    i=0
+    j=0
+    for i in range(0,n):      
+       
+        j=(j+s[i]+ord(k[i%l]))%n;
+
+        x=s[i];
+        s[i]=s[j];
+        s[j]=x;
+        #if (i==0): print s
+    i=0
+    j=0    
+    for y in range(0,len(d)):#(var i=j=y=0;y<d.length;y++)
+        i=(i+1)%n;
+        j=(j+s[i])%n;
+        x=s[i];
+        s[i]=s[j];
+        s[j]=x;
+        o+=chr(ord(d[y])^s[(s[i]+s[j])%n]);
+
+    return o;
+
+        
+def getUrlWithWebProxy(url, cookieJar=None,post=None, timeout=20, headers=None):
+
+
+    import urllib,re
+    #print 'webproxyurl before',url
+    if cookieJar==None:
+        cookieJar=cookielib.LWPCookieJar()
+    te=getUrl('http://proxy.marbenak.com/',cookieJar=cookieJar,useproxy=False)
+    c=re.findall('\{u\:\'(.*?)\'',te)[0]
+    ss= arcfour(c,url[4:])
+    bb='21'#re.findall('\},b:\'(.*?)\'',te)[0]
+    referer='norefer'
+    if headers:
+        for h,hv in headers:
+            if h=='Referer':
+                referer=hv
+    
+    rs=getUrl('http://proxy.marbenak.com/browse.php?u=%s&b=%s&f=%s'%(urllib.quote_plus(ss.encode('base64')),bb,referer),cookieJar=cookieJar, headers=headers ,useproxy=False)
+
+    rr='[\'"]\/browse.php\?u\=(.*?)["\']'
+    ec=re.findall(rr,rs)
+    c=re.findall('\{u\:\'(.*?)\'',rs)[0]
+
+    for enc in ec:
+        
+        try:
+            dtext=arcfour(c,urllib.unquote(enc.split('&amp;')[0]).decode("base64"))
+            #print enc
+            #print dtext
+            rs=rs.replace('/browse.php?u='+enc,'http'+dtext)
+            
+            
+        except: pass
+    #print 'webproxyurl',url,rs
+    return rs
+
+    
+
+def setProxy():
+    #proxyhtml=getUrl('http://gatherproxy.com/proxylist/country/?c=Australia')
+    selfAddon.setSetting( id="sport365proxyserver" ,value="185.72.246.41")    
+    selfAddon.setSetting( id="sport365proxyport" ,value="3128")    
+    return True
+    
+    
+def proxyserverAndPort():
+    return selfAddon.getSetting(id="sport365proxyserver"),selfAddon.getSetting(id="sport365proxyport")    
+    
+    
+def getUrlWithProxy(url, cookieJar=None,post=None, timeout=20, headers=None):
+#    from socksipyhandler import SocksiPyHandler
+    proxyserver,proxyport=proxyserverAndPort()
+    print 'in proxy',proxyserver,proxyport,url
+    
+    cookie_handler = urllib2.HTTPCookieProcessor(cookieJar)    
+    opener = urllib2.build_opener(cookie_handler, urllib2.HTTPBasicAuthHandler(), urllib2.HTTPHandler(),urllib2.ProxyHandler({ 'http'  : '%s:%s'%(proxyserver,proxyport)}))    
+    
     req = urllib2.Request(url)
-    req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36')
+    req.add_header('User-Agent',useragent)
     if headers:
         for h,hv in headers:
             req.add_header(h,hv)
@@ -87,6 +223,7 @@ def getUrl(url, cookieJar=None,post=None, timeout=20, headers=None):
     response.close()
     return link;
 
+    
 def unwise_func( w, i, s, e):
     lIll = 0;
     ll1I = 0;
@@ -155,17 +292,26 @@ def get365CookieJar(updatedUName=False):
     if not cookieJar:
         cookieJar = cookielib.LWPCookieJar()
     return cookieJar    
-def get365Key(cookieJar,url=None):
-    headers=[('User-Agent','AppleCoreMedia/1.0.0.13A452 (iPhone; U; CPU OS 9_0_2 like Mac OS X; en_gb)')]
+def get365Key(cookieJar,url=None, useproxy=True):
+    headers=[('User-Agent',useragent)]
+    import time
     if not url:
         mainhtml=getUrl("http://www.sport365.live/en/main",headers=headers, cookieJar=cookieJar)
-        kurl=re.findall("src=\"(http.*?/wrapper.js.*?)\"",mainhtml)[0]
+        #print 'mainhtml',mainhtml
+        try:
+            kurl=re.findall("src=\"(http.*?/wrapper.js.*?)\"",mainhtml)[0]
+        except:
+            kurl='http://s1.medianetworkinternational.com/js/wrapper.js?'+str(int(time.time()))
     else:
         kurl=url
+    
     khtml=getUrl(kurl,headers=headers, cookieJar=cookieJar)
+    if khtml=="": 
+        if setProxy():
+            kkey=getUrl(kurl,headers=headers, cookieJar=cookieJar)        
     kstr=re.compile('eval\(function\(w,i,s,e\).*}\((.*?)\)').findall(khtml)[0]
     kunc=get_unwise(kstr)
-    print kunc    
+    #print kunc    
     
     kkey=re.findall('aes_key="(.*?)"',kunc)
     kkey=re.findall('aes\(\)\{return "(.*?)"',kunc)
@@ -183,10 +329,12 @@ def Colored(text = '', colorid = '', isBold = False):
     if isBold == True:
         text = '[B]' + text + '[/B]'
     return '[COLOR ' + color + ']' + text + '[/COLOR]'	
+
 def getLinks():
-    cookieJar=get365CookieJar()
-    kkey=get365Key(cookieJar)
-    headers=[('User-Agent','AppleCoreMedia/1.0.0.13A452 (iPhone; U; CPU OS 9_0_2 like Mac OS X; en_gb)')]
+    cookieJar=get365CookieJar(True)
+    kkey=get365Key(cookieJar,useproxy=False)
+        
+    headers=[('User-Agent',useragent)]
 
     liveurl="http://www.sport365.live/en/events/-/1/-/-"+'/'+str(getutfoffset())
     linkshtml=getUrl(liveurl,headers=headers, cookieJar=cookieJar)
@@ -195,7 +343,7 @@ def getLinks():
     print 'got links',sportslinks
     progress = xbmcgui.DialogProgress()
     progress.create('Progress', 'Fetching Live Links')
-#    print sportslinks
+    #print sportslinks
     c=0
     cookieJar.save (S365COOKIEFILE,ignore_discard=True)
 
@@ -226,19 +374,17 @@ def getLinks():
                 lng=Colored("[" +lng+"]","orange")
             if len(qty)>0:
                 qty=Colored("["+qty+"]","red")
-
-            if "Dutch" in lng or "English" in lng or "German" in lng or "French" in lng:
                 
             
-                if not lnk.startswith("http"):
-                    lnk='http://www.sport365.live'+lnk
-                #print lnk
-                if tp=="green":
-                    lnk=base64.b64encode("Sports365:"+base64.b64encode(lnk))
-                    #addDir(Colored(cat.capitalize()+": "+tm+" : "+ qty+lng+nm  ,'ZM') ,lnk,11 ,"",isItFolder=False)
-                    ret+=[(cat.capitalize()+": "+tm+" : "+ qty+lng+nm ,lnk,True)]
-                else:
-                    ret+=[(cat.capitalize()+": "+tm+" : "+ qty+lng+nm ,lnk,False)]
+            if not lnk.startswith("http"):
+                lnk='http://www.sport365.live'+lnk
+            #print lnk
+            if tp=="green":
+                lnk=base64.b64encode("Sports365:"+base64.b64encode(lnk))
+                #addDir(Colored(cat.capitalize()+": "+tm+" : "+ qty+lng+nm  ,'ZM') ,lnk,11 ,"",isItFolder=False)
+                ret+=[(cat.capitalize()+": "+tm+" : "+ qty+lng+nm ,lnk,True)]
+            else:
+                ret+=[(cat.capitalize()+": "+tm+" : "+ qty+lng+nm ,lnk,False)]
         except: traceback.print_exc(file=sys.stdout)
         progress.close()
     return ret
@@ -261,17 +407,36 @@ def getutfoffset():
     return int(utc_offset)
     
 def selectMatch(url):
-    url=select365(url)
+
+    cookieJar=get365CookieJar()
+    mainref='http://www.sport365.live/en/main'
+    headers=[('User-Agent',useragent)]
+    try:
+        getUrl("http://www.sport365.live/",headers=headers, cookieJar=cookieJar)
+        mainref=lastfinalurl
+    except: pass
+    
+    url=select365(url,cookieJar,mainref)
+    
+    if 1==2:
+        try:
+            headers=[('User-Agent',useragent)]
+            hh=getUrl("http://adbetnet.advertserve.com/servlet/view/dynamic/javascript/zone?zid=281&pid=4&resolution=1920x1080&random=11965377&millis=1473441350879&referrer=http%3A%2F%2Fwww.sport365.live%2Fen%2Fhome",headers=headers, cookieJar=cookieJar)
+            getUrl(re.findall('<img width=.*?src=\\\\"(.*?)\\\\"',hh)[0],headers=headers, cookieJar=cookieJar,useproxy=False)
+        except: pass
     if url=="": return 
     import HTMLParser
     h = HTMLParser.HTMLParser()
 
     #urlToPlay=base64.b64decode(url)
-    cookieJar=get365CookieJar()
-    html=getUrl(url,headers=[('Referer','http://www.sport365.live/en/main')],cookieJar=cookieJar)
+
+    html=getUrl(url,headers=[('Referer',mainref)],cookieJar=cookieJar)
+    
+    
     #print html
     reg="iframe frameborder=0.*?src=\"(.*?)\""
     linkurl=re.findall(reg,html)
+    #print 'linkurl',linkurl
     if len(linkurl)==0:
         reg="http://www.sport365.live.*?'\/(.*?)'\)"
         linkurl=re.findall(reg,html)[0]
@@ -282,32 +447,40 @@ def selectMatch(url):
 #        print linkurl
     else:
         linkurl=linkurl[0]
-    enclinkhtml=getUrl(h.unescape(linkurl),cookieJar=cookieJar)
+    uurl=h.unescape(linkurl)
+    print 'uurl',uurl
+    if not uurl.startswith('http'):
+        import urlparse
+        uurl=urlparse.urljoin('http://www.fastflash.pw/', uurl)
+        print 'newurl',uurl
+    enclinkhtml=getUrl(uurl,cookieJar=cookieJar,headers=[('Referer',url )])
     reg='player_div", "st".*?file":"(.*?)"'
     enclink=re.findall(reg,enclinkhtml)
     usediv=False
     
     if len(enclink)==0:
         reg='name="f" value="(.*?)"'
-        enclink=re.findall(reg,enclinkhtml)[0]  
-        reg='name="s" value="(.*?)"'
-        encst=re.findall(reg,enclinkhtml)[0]
+        enclink=re.findall(reg,enclinkhtml)[-1]  
+        reg='name="d" value="(.*?)"'
+        encst=re.findall(reg,enclinkhtml)[-1]
         reg="\('action', ['\"](.*?)['\"]"
         postpage=re.findall(reg,enclinkhtml)
         if len(postpage)>0:
             
             reg='player_div", "st".*?file":"(.*?)"'
-            post={'p':'http://cdn.adshell.net/swf/player.swf','s':encst,'f':enclink}
+            post={'d':encst,'f':enclink}
             post = urllib.urlencode(post)
-            enclinkhtml2= getUrl(postpage[0],post=post, headers=[('Referer',linkurl),('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36')])
+            enclinkhtml2= getUrl(postpage[0],post=post,cookieJar=cookieJar, headers=[('Referer',linkurl),('User-Agent',useragent)])
             #enclink=re.findall(reg,enclinkhtml2)
             if 'player_div' in enclinkhtml2>0:
                 usediv=True
                 #enclinkhtml=enclinkhtml2
                 #print 'usediv',usediv
-                reg="player_div\",.?\"(.*?)\",.?\"(.*?)\",(.*?)\)"
-                encst,enclink,isenc=re.findall(reg,enclinkhtml2)[0]
-                #print 'encst,enclink',encst,enclink,isenc
+                reg='player_div\'.*?\s*\s*<.*?\s*.*?\("(.*?)\",.?\"(.*?)\",(.*?)\)'
+                reg="\([\"'](.*?)[\"'],.?[\"'](.*?)[\"'],.?[\"'](.*?)[\"'],(.*?)\)"
+                pd,encst,enclink,isenc=re.findall(reg,enclinkhtml2)[0]
+
+                print 'encst,enclink',encst,enclink,isenc
                 isenc=isenc.strip();
                 if isenc=="1":
                     reg="src=\"(.*?\\/wrapper.js.*)\""
@@ -318,8 +491,9 @@ def selectMatch(url):
                     import jscrypto
                     lnk=jscrypto.decode(enclink["ct"],kkey,enclink["s"].decode("hex"))
                     
-                    print lnk
+                    print 'dec link',lnk                    
                     enclink=lnk
+                    if lnk.startswith('"http'): lnk= lnk.replace('\"','').replace('\\/','/')
                 #enclink=enclink[0]
                 #print 'enclink',enclink
                 #reg='player_div", "st":"(.*?)"'
@@ -338,24 +512,46 @@ def selectMatch(url):
     #    print 'enclink',enclink
     #    reg='player_div", "st":"(.*?)"'
     #    encst=re.findall(reg,enclinkhtml)[0]
-        
-    decodedst=decode(encst)
+    print 'encst',encst
+    if not 'peer' in encst:
+        decodedst=decode(encst)
 
-    #print encst, decodedst
-    reg='"stkey":"(.*?)"'
-    sitekey=re.findall(reg,decodedst)[0]
-    #sitekey="myFhOWnjma1omjEf9jmH9WZg91CC"#hardcoded
+        #print encst, decodedst
+        reg='"stkey":"(.*?)"'
+        sitekey=re.findall(reg,decodedst)[0]
+        #sitekey="myFhOWnjma1omjEf9jmH9WZg91CC"#hardcoded
+        urlToPlaymain=decode(enclink.replace(sitekey,""))
+    else:
+        urlToPlaymain=lnk
+    urlToPlay= urlToPlaymain
+    newcj=cookielib.LWPCookieJar();
+    try:
+        getUrl(urlToPlay, headers=[('User-Agent',useragent),('Origin','http://h5.adshell.net'),('Referer','http://h5.adshell.net/peer5')],cookieJar=newcj)
+    except: pass
 
-    urlToPlay= decode(enclink.replace(sitekey,""))+"|Referer=%s&User-Agent=Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36"%"http://h5.adshell.net/flash"
-    return urlToPlay
-def select365(url):
+   
+    #print newcj
+    sessionid=getCookiesString(newcj,'PHPSESSID').split('=')[-1]
+    import uuid
+    playback=str(uuid.uuid1()).upper()   
+    if len(sessionid)>0: '&Cookie=PHPSESSID='+sessionid.split('=')[-1]
+    urlToPlaymain+="|Referer=%s&User-Agent=%s&Origin=http://h5.adshell.net&Referer=http://h5.adshell.net/peer5%s&X-Playback-Session-Id=%s"%( "http://h5.adshell.net/flash",urllib.quote_plus(useragent),sessionid,playback)    
+#    urlToPlaymain+="|Referer=%s&User-Agent=%s&Origin=http://h5.adshell.net&Referer=http://h5.adshell.net/peer5%s&X-Playback-Session-Id=%s"%( "http://h5.adshell.net/flash",urllib.quote_plus(useragent),sessionid,playback)    
+    headers=[('User-Agent',useragent),('Referer',mainref)]
+    getUrl("http://www.sport365.live/en/sidebar",headers=headers, cookieJar=cookieJar)
+    cookieJar.save (S365COOKIEFILE,ignore_discard=True)
+
+    #return urlToPlaymain
+    return 'plugin://plugin.video.f4mTester/?url=%s&streamtype=HLS'%(urllib.quote_plus(urlToPlaymain))
+    
+def select365(url,cookieJar,mainref):
     print 'select365',url
     url=base64.b64decode(url)
     retUtl=""
     
     try:
         links=[]
-        matchhtml=getUrl(url)        
+        matchhtml=getUrl(url,cookieJar=cookieJar,headers=[('X-Requested-With','XMLHttpRequest'),('Referer',mainref)])        
         reg=".open\('(.*?)'.*?>(.*?)<"
         sourcelinks=re.findall(reg,matchhtml)
         b6=False
@@ -439,3 +635,18 @@ def select365(url):
     except:
         traceback.print_exc(file=sys.stdout)
     return retUtl
+
+    
+def getCookiesString(cookieJar,cookieName=None):
+    try:
+        cookieString=""
+        for index, cookie in enumerate(cookieJar):
+            print index, cookie
+            if cookieName==None:
+                cookieString+=cookie.name + "=" + cookie.value +";"
+            elif (cookieName==cookie.name or cookieName in cookie.name ):
+                cookieString=cookie.name + "=" + cookie.value +";"
+    except: pass
+    print 'cookieString',cookieString
+    return cookieString
+
