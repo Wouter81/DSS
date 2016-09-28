@@ -122,7 +122,8 @@ def sorted_nicely( l ):
 def Addtypes():
    addDir('Live On Air' ,'xite',2,icon ,  FANART,'','','','')
    addDir('Week Mix' ,'http://xite.nl/videos/categorie/xite-week-mix/1?ajax=1',3,icon ,  FANART,'','','','')
-   addDir('More Coming Soon' ,'soon',0,icon ,  FANART,'','','','')
+   import plugintools
+   plugintools.add_item(title="Xite Youtube",url="plugin://plugin.video.youtube/user/XITEONLINE/",thumbnail=icon,folder=True )
    
    from resources.lib.modules import cache, control, changelog
    cache.get(changelog.get, 600000000, control.addonInfo('version'), table='changelog')
