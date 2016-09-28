@@ -1,6 +1,10 @@
 ====================================================================
 [COLOR gold]Xite addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
+
+[COLOR red][B]V1.0.1[/B][/COLOR]
+- Add Week Mix
+
 [COLOR red][B]V1.0.0[/B][/COLOR]
 - Release
 

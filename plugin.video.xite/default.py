@@ -121,6 +121,7 @@ def sorted_nicely( l ):
 
 def Addtypes():
    addDir('Live On Air' ,'xite',2,icon ,  FANART,'','','','')
+   addDir('Week Mix' ,'http://xite.nl/videos/categorie/xite-week-mix/1?ajax=1',3,icon ,  FANART,'','','','')
    addDir('More Coming Soon' ,'soon',0,icon ,  FANART,'','','','')
    
    from resources.lib.modules import cache, control, changelog
@@ -140,14 +141,34 @@ def Xitelive():
         xbmc.Player( xbmc.PLAYER_CORE_AUTO ).play( url, listitem)
 
 
+def Xitemix(url):
+    name = ''
+    i=0
+    nexti=re.compile('http://xite.nl/videos/categorie/xite-week-mix/(.*?)\?ajax=1', re.DOTALL).findall(url)
+    for i in nexti:
+        i=int(i)
+        i=i+1
 
+    html=make_request(url)
+    match = re.compile(r'<img src="(.*?)" />.*?<h3>(.*?)</h3>.*?<a href="(.*?)"><span>Bekijk video</span></a>', re.DOTALL).findall(html)
+    for img, name, url in match:
+        url = 'http://xite.nl'+url
+        addDir(name ,url,4,img ,  img,'','','','')
+    if name != 'XITE Year Mix - 2013':
+            
+        url2='http://xite.nl/videos/categorie/xite-week-mix/'+str(i)+'?ajax=1'
+        addDir('Next page' ,url2,3,icon ,  FANART,'','','','')
+        
+ 
 
        
 
-
-
-
-   
+def Playmix(url,name):
+    html = make_request(url)
+    match = re.compile('<source type="video/mp4"  src="(.*?)">', re.DOTALL).findall(html)
+    for stream in match:
+        listitem = xbmcgui.ListItem( label = str(name), iconImage = "DefaultVideo.png", thumbnailImage = xbmc.getInfoImage( "ListItem.Thumb" ) )
+        xbmc.Player( xbmc.PLAYER_CORE_AUTO ).play( stream, listitem)
 
 
 
@@ -236,7 +257,11 @@ try:
       Addtypes()
    elif mode==2 :
       Xitelive()
-   
+   elif mode==3 :
+      Xitemix(url)
+   elif mode==4 :
+      Playmix(url,name)
+
 
 except:
    print 'somethingwrong'
