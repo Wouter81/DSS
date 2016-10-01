@@ -1,6 +1,10 @@
 ====================================================================
 [COLOR gold]WildHitz addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
+
+[COLOR red][B]V1.0.2[/B][/COLOR]
+- fixed play clips in kodi 17
+
 [COLOR red][B]V1.0.2[/B][/COLOR]
 - change in code
 

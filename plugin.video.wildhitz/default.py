@@ -274,10 +274,11 @@ def Wildmix(url):
 
 
 def playmix(name,url):
-   
-   listitem = xbmcgui.ListItem( label = str(name), iconImage = "DefaultVideo.png", thumbnailImage = xbmc.getInfoImage( "ListItem.Thumb" ) )
-
-   xbmc.Player( xbmc.PLAYER_CORE_AUTO ).play( url, listitem)
+    pl=xbmc.PlayList(1)
+    pl.clear()
+    listitem = xbmcgui.ListItem('WildHitz - '+name,thumbnailImage=icon)
+    xbmc.PlayList(1).add(url, listitem)
+    xbmc.Player().play(pl)
 
 
 def keyboard(url=None):
