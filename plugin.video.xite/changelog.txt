@@ -3,6 +3,9 @@
 ====================================================================
 
 [COLOR red][B]V1.0.2[/B][/COLOR]
+- update for kodi 17
+
+[COLOR red][B]V1.0.2[/B][/COLOR]
 - Add Xite youtube 
 
 [COLOR red][B]V1.0.1[/B][/COLOR]

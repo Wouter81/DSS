@@ -138,8 +138,11 @@ def Xitelive():
     html=make_request(url)
     html = re.compile(' <source type="application/x-mpegurl" src="(.*?)">', re.DOTALL).findall(html)
     for url in html:
-        listitem = xbmcgui.ListItem( label = str(name), iconImage = "DefaultVideo.png", thumbnailImage = xbmc.getInfoImage( "ListItem.Thumb" ) )
-        xbmc.Player( xbmc.PLAYER_CORE_AUTO ).play( url, listitem)
+        pl=xbmc.PlayList(1)
+        pl.clear()
+        listitem = xbmcgui.ListItem(name,thumbnailImage=icon)
+        xbmc.PlayList(1).add(url, listitem)
+        xbmc.Player().play(pl)
 
 
 def Xitemix(url):
@@ -167,9 +170,12 @@ def Xitemix(url):
 def Playmix(url,name):
     html = make_request(url)
     match = re.compile('<source type="video/mp4"  src="(.*?)">', re.DOTALL).findall(html)
-    for stream in match:
-        listitem = xbmcgui.ListItem( label = str(name), iconImage = "DefaultVideo.png", thumbnailImage = xbmc.getInfoImage( "ListItem.Thumb" ) )
-        xbmc.Player( xbmc.PLAYER_CORE_AUTO ).play( stream, listitem)
+    for url in match:
+        pl=xbmc.PlayList(1)
+        pl.clear()
+        listitem = xbmcgui.ListItem(name,thumbnailImage=icon)
+        xbmc.PlayList(1).add(url, listitem)
+        xbmc.Player().play(pl)
 
 
 

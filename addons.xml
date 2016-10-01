@@ -196,7 +196,7 @@ Andy van der Meijde - Official
 
 <addon id="plugin.video.xite"
        name="Xite"
-       version="1.0.2"
+       version="1.0.3"
        provider-name="DSS">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
