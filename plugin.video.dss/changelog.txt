@@ -2,15 +2,7 @@
 [COLOR gold]DutchSportStreams addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
 
-[COLOR red][B]V5.4.2[/B][/COLOR]
-- remove bvls
-- update to zemtv sport(live365)
-
-[COLOR red][B]V5.4.1[/B][/COLOR]
-- update bvls
-
-[COLOR red][B]V5.4.0[/B][/COLOR]
-- DutchSportStreams is back.
-- More update's in the future
-
+[COLOR red][B]V5.5.0[/B][/COLOR]
+- clone foxsport
+- clone ziggo sport
 

@@ -1,485 +1,401 @@
-import urllib2,urllib,cgi, re, urlresolver  
-import urlparse
-import HTMLParser
-import xbmc
-import xbmcplugin
-import xbmcgui
-import xbmcaddon
-import xbmcvfs
-import random
-from operator import itemgetter
-import traceback,cookielib
-import base64,os,  binascii
-import CustomPlayer,uuid
-from time import time
-from datetime import datetime
-import base64
-import xml.etree.ElementTree as ET
-import random
-import live365
-import time
-import datetime
-import _strptime
-from resources.lib.modules import control
-from resources.lib.modules.log_utils import log
+#-*- coding: utf-8 -*-
 
-from addon.common.addon import Addon
-          
+import urllib,urllib2,re, cookielib, urlparse, httplib
+import xbmc,xbmcplugin,xbmcgui,xbmcaddon,sys,time, os, gzip, socket
+import time, datetime
+from datetime import date, datetime, timedelta
+
 try:
     import json
 except:
     import simplejson as json
     
+
 addon = xbmcaddon.Addon('plugin.video.dss')
 addonname = addon.getAddonInfo('name')
-#icon = addon.getAddonInfo('icon')
 addon_id = 'plugin.video.dss'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 profile_path =  xbmc.translatePath(selfAddon.getAddonInfo('profile'))
 home = xbmc.translatePath(addon.getAddonInfo('path').decode('utf-8')) 
 icon = os.path.join(home, 'icon.png')
-FANART = os.path.join(home, 'fanart.jpg')
-
-addonDir = addon.getAddonInfo('path').decode("utf-8")
-libDir = os.path.join(addonDir, 'resources', 'lib')
-profile = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
-home = xbmc.translatePath(addon.getAddonInfo('path').decode('utf-8'))
-favorites = os.path.join(profile, 'favorites')
-history = os.path.join(profile, 'history')
- 
-if not os.path.exists(profile):
-    os.makedirs(profile)
+fanart = os.path.join(home, 'fanart.jpg')
 
 
 addon_handle = int(sys.argv[1])
 pluginhandle = int(sys.argv[1])
-
-S365COOKIEFILE='s365CookieFile.lwp'
-S365COOKIEFILE=os.path.join(profile, S365COOKIEFILE)
-
-
 
 class NoRedirection(urllib2.HTTPErrorProcessor):
    def http_response(self, request, response):
        return response
    https_response = http_response
 
-def ShowSettings(Fromurl):
-	selfAddon.openSettings()
+
+foxicon = 'http://www.foxsports.nl/images/ml/logos/logo.png'
 
 
-def get365CookieJar(updatedUName=False):
-    cookieJar=None
+def make_request(url):
+	try:
+		req = urllib2.Request(url)
+		req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0')
+		response = urllib2.urlopen(req)	  
+		link = response.read()
+		response.close()  
+		return link
+	except urllib2.URLError, e:
+		print 'We failed to open "%s".' % url
+		if hasattr(e, 'code'):
+			print 'We failed with error code - %s.' % e.code	
+		if hasattr(e, 'reason'):
+			print 'We failed to reach a server.'
+			print 'Reason: ', e.reason
+		link = 'index.html'
+		return link
+
+
+def MainDir():
+    addDir('Club Channels' ,'',1,icon)
+    addDir('Ziggo Sport Totaal Replays and Clips' ,'',2,icon)
+    addDir('FOX Sports Videos' ,'',3,icon)
+    
+        
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
+
+def CatClubchannels():
+    import plugintools
+    plugintools.add_item(title="AFC Ajax",url="plugin://plugin.video.youtube/user/ajax/",thumbnail='https://yt3.ggpht.com/-jqrIEltgE1U/AAAAAAAAAAI/AAAAAAAAAAA/AhkDhss9X4w/s100-c-k-no/photo.jpg',folder=True )
+    plugintools.add_item(title="Feyenoord",url="plugin://plugin.video.youtube/user/FeyenoordRotterdamTV/",thumbnail="https://yt3.ggpht.com/-sfO41QeVlw4/AAAAAAAAAAI/AAAAAAAAAAA/hDDl3jwRL1k/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="PSV",url="plugin://plugin.video.youtube/user/psveindhoven/",thumbnail="https://i.ytimg.com/i/_2ynsXrRrKP8zYrU7Hc06A/mq1.jpg?v=53302bc9",folder=True )
+    plugintools.add_item(title="Pec Zwolle",url="plugin://plugin.video.youtube/user/peczwolletv/",thumbnail="https://yt3.ggpht.com/-ShDWQyu69vk/AAAAAAAAAAI/AAAAAAAAAAA/klALDUBVkFs/s100-c-k-no-rj-c0xffffff/photo.jpg",folder=True )
+    plugintools.add_item(title="Heracles Almelo",url="plugin://plugin.video.youtube/user/HeraclesAlmeloTV/",thumbnail="https://yt3.ggpht.com/-4syNFL3i7WA/AAAAAAAAAAI/AAAAAAAAAAA/9uxdYzc6z-8/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="Roda JC Kerkrade",url="plugin://plugin.video.youtube/user/RodaJCKerkradeTV/",thumbnail="https://yt3.ggpht.com/-LhF3zdjpng4/AAAAAAAAAAI/AAAAAAAAAAA/peTKp7TXFYQ/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="ADO Den Haag",url="plugin://plugin.video.youtube/user/ADODenHaagTV/",thumbnail="https://yt3.ggpht.com/-6RvgIEV9WhI/AAAAAAAAAAI/AAAAAAAAAAA/eYEVcEyJTHU/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="Vitesse",url="plugin://plugin.video.youtube/user/VitesseTV/",thumbnail="https://yt3.ggpht.com/-ewXQBcFk6ZE/AAAAAAAAAAI/AAAAAAAAAAA/1_nJq7G_iqo/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="FC Groningen",url="plugin://plugin.video.youtube/user/FCGroningenTV/",thumbnail="https://yt3.ggpht.com/-vatxowB6e2o/AAAAAAAAAAI/AAAAAAAAAAA/PySf0KkU7ZM/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="N.E.C.",url="plugin://plugin.video.youtube/user/NECTVkanaal/",thumbnail="https://yt3.ggpht.com/-KpZ8RDTeTfQ/AAAAAAAAAAI/AAAAAAAAAAA/pVeT-DTm5kk/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="FC Utrecht",url="plugin://plugin.video.youtube/user/fcutrecht/",thumbnail="https://yt3.ggpht.com/-3RaZ5yClYxg/AAAAAAAAAAI/AAAAAAAAAAA/R4o-6Jk6x8M/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="AZ",url="plugin://plugin.video.youtube/user/AZTV/",thumbnail="https://yt3.ggpht.com/-yyhnHNLCPp8/AAAAAAAAAAI/AAAAAAAAAAA/xlm_pFvukqI/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="Willem II",url="plugin://plugin.video.youtube/user/WillemII/",thumbnail="https://yt3.ggpht.com/-738-M5uYXlg/AAAAAAAAAAI/AAAAAAAAAAA/0k0wAIqPq30/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="Excelsior",url="plugin://plugin.video.youtube/user/sbvexcelsior/",thumbnail="https://yt3.ggpht.com/-32h9c3Rz-ao/AAAAAAAAAAI/AAAAAAAAAAA/1ANEn8xjySU/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="FC Twente",url="plugin://plugin.video.youtube/user/FCTwenteTV/",thumbnail="https://yt3.ggpht.com/-TKHbRZL1kb4/AAAAAAAAAAI/AAAAAAAAAAA/cyqeyk8i8RM/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="SC Cambuur",url="plugin://plugin.video.youtube/user/SCCambuurTV/",thumbnail="https://yt3.ggpht.com/-Fb4cKM1YAto/AAAAAAAAAAI/AAAAAAAAAAA/uBPlhE7gn7E/s100-c-k-no/photo.jpg",folder=True )
+    plugintools.add_item(title="De Graafschap",url="plugin://plugin.video.youtube/user/degraafschapvideo/",thumbnail="https://yt3.ggpht.com/--eXA14VMeVU/AAAAAAAAAAI/AAAAAAAAAAA/ju7WtvhOsg0/s100-c-k-no/photo.jpg",folder=True )
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
+
+def MainZigo():
+    addDir('Zoeken','http://www.ziggosporttotaal.nl/zoeken.html?s=',15,'https://pbs.twimg.com/profile_images/666249780998311936/dK_1dIYE.jpg') 
+    addDir('Laatste video','http://www.ziggosporttotaal.nl/video/?sort=recent',13,'https://pbs.twimg.com/profile_images/666249780998311936/dK_1dIYE.jpg') 
+    addDir('Meest bekeken','http://www.ziggosporttotaal.nl/video/?sort=most',13,'https://pbs.twimg.com/profile_images/666249780998311936/dK_1dIYE.jpg') 
+    addDir('Voetbal','http://www.ziggosporttotaal.nl/video/1-voetbal/',13,'https://pbs.twimg.com/profile_images/666249780998311936/dK_1dIYE.jpg') 
+    addDir('Racing','http://www.ziggosporttotaal.nl/video/22-racing/',13,'https://pbs.twimg.com/profile_images/666249780998311936/dK_1dIYE.jpg')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
+
+def List(url):
+    listhtml = make_request(url)
+    match = re.compile(r'<div class="video-list-item">.*?<a href="(.*?)">.*?img src="(.*?)".*?<span class="title">(.*?)</span>.*?<small class="date">(.*?)</small>', re.DOTALL | re.IGNORECASE).findall(listhtml)
+    for videopage, img, name, datum in match:
+        name = cleantext(name) + ' - ' + datum
+        videopage = "http://www.ziggosporttotaal.nl" + videopage
+        img = "http://www.ziggosporttotaal.nl" + img
+        addLink(name, videopage, 16, img,'https://static-ontdek.ziggo.nl/images/1920/topvisuals/3840x2880-highlights-race-campaign-new.jpg')
     try:
-        cookieJar = cookielib.LWPCookieJar()
-        if not updatedUName:
-            cookieJar.load(S365COOKIEFILE,ignore_discard=True)
-    except: 
-        cookieJar=None
+        nextp=re.compile('href="([^"]+)" class="nav-link icon-chevron-right"', re.DOTALL | re.IGNORECASE).findall(listhtml)[0]
+        next = "http://www.ziggosporttotaal.nl" + nextp.replace("&amp;","&")
+        utils.addDir('Volgende Pagina', next, 13,'')
+    except: pass
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    
+def SearchList(url):
+    listhtml = make_request(url)
+    match = re.compile(r'<li class="video-list-item">.*?<a href="(.*?)" class="imgLink">.*?srcset="(.*?) 2x.*?<span class="video-title">(.*?)</span>', re.DOTALL | re.IGNORECASE).findall(listhtml)
+    for videopage, img, name in match:
+        name = cleantext(name)
+        videopage = "http://www.ziggosporttotaal.nl" + videopage
+        img = "http://www.ziggosporttotaal.nl" + img
+        addLink(name, videopage, 16, img, 'https://static-ontdek.ziggo.nl/images/1920/topvisuals/3840x2880-highlights-race-campaign-new.jpg')
+    try:
+        nextp=re.compile(r'nav-link active">\d+<.*?href="([^"]+)" class="nav-link', re.DOTALL | re.IGNORECASE).findall(listhtml)[0]
+        next = "http://www.ziggosporttotaal.nl/zoeken.html" + nextp.replace("&amp;","&").replace(" ","+")
+        addDir('Volgende Pagina', next, 14,'')
+    except: pass
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
-    if not cookieJar:
-        cookieJar = cookielib.LWPCookieJar()
-    return cookieJar
+def Playvid(url, name):
+    listhtml = make_request(url)
+    match = re.compile(r"file: '(.*?)'").findall(listhtml)
+    if match:
+        videourl = match[0]
+        iconimage = xbmc.getInfoImage("ListItem.Thumb")
+        listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+        listitem.setInfo('video', {'Title': name, 'Genre': 'Music'})
+        listitem.setProperty("IsPlayable","true")
+        if int(sys.argv[1]) == -1:
+            pl = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+            pl.clear()
+            pl.add(videourl, listitem)
+            xbmc.Player().play(pl)
+        else:
+            listitem.setPath(str(videourl))
+            xbmcplugin.setResolvedUrl(utils.addon_handle, True, listitem)
+    #else:
+        #utils.notify('Oh oh','Couldn\'t find a playable video link')
 
-def Privacy_Policy():
-    dialog = xbmcgui.Dialog()
-    dialog.ok("OFFLINE", "DutchSportStreams is voor onbepaalde tijd offline.", "alternatieven zijn : ZemTV, SportDevil en Castaway")
+
+
+def MainFox():
+    addDir('Zoeken','http://www.foxsports.nl/search/videos/?q=',230,foxicon)
+    addDir('Laatste Video','http://www.foxsports.nl/video/filter/fragments/1/',228,foxicon) 
+    addDir('Samenvattingen','',237,foxicon)
+    addDir('Doelpunten','',238,foxicon)
+    addDir('Interviews','',239,foxicon)
+    addDir('Analyses','http://www.foxsports.nl/video/filter/fragments/1/analyses/',228,foxicon)
+    addDir('Voetbal','http://www.foxsports.nl/video/filter/fragments/1/alle/voetbal/',228,foxicon) 
+    addDir('Tennis','http://www.foxsports.nl/video/filter/fragments/1/alle/tennis/',228,foxicon) 
+    addDir('Overige','http://www.foxsports.nl/video/filter/fragments/1/alle/overige/',228,foxicon) 
+    addDir('Aanbevolen','http://www.foxsports.nl/video/filter/fragments/1/aanbevolen/',228,foxicon) 
+    addDir('Meest bekeken','http://www.foxsports.nl/video/meest_bekeken/',228,foxicon) 
+    addDir('Videoklasiekers','http://www.foxsports.nl/video/filter/fragments/1/videoklassiekers/',228,foxicon) 
+    addDir('Meer','http://www.foxsports.nl/video/filter/fragments/1/meer_video/',228,foxicon)  
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    
+def MainSamenvattingen():
+    addDir('Alle Samenvattingen','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/',228,foxicon)
+    addDir('Voetbal Samenvattingen','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/',228,foxicon)
+    addDir('Eredivisie','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/eredivisie/',228,foxicon)  
+    addDir('Jupiler League','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/jupiler-league/',228,foxicon) 
+    addDir('KNVB Beker','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/knvb-beker/',228,foxicon)
+    addDir('UEFA Europa League','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/uefa-europa-league/',228,foxicon)
+    addDir('Barclays Premier League','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/barclays-premier-league/',228,foxicon)
+    addDir('Bundesliga','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/bundesliga/',228,foxicon)  
+    addDir('FA Cup','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/fa-cup/',228,foxicon) 
+    addDir('DFB Pokal','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/dfb-pokal/',228,foxicon)
+    addDir('UEFA Europa League Kwalificatie','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/uefa-europa-league-kwalificatie/',228,foxicon)
+    addDir('EK Kwalificatie','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/ek-kwalificatie/',228,foxicon)
+    addDir('Tweede Bundesliga','http://www.foxsports.nl/video/filter/fragments/1/samenvattingen/voetbal/tweede-bundesliga/',228,foxicon) 
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    
+def MainDoelpunten():
+    addDir('Alle Doelpunten','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/',228,foxicon)
+    addDir('Eredivisie','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/eredivisie/',228,foxicon)  
+    addDir('Jupiler League','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/jupiler-league/',228,foxicon) 
+    addDir('KNVB Beker','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/knvb-beker/',228,foxicon)
+    addDir('UEFA Europa League','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/uefa-europa-league/',228,foxicon)
+    addDir('Barclays Premier League','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/barclays-premier-league/',228,foxicon)
+    addDir('Bundesliga','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/bundesliga/',228,foxicon)  
+    addDir('FA Cup','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/fa-cup/',228,foxicon) 
+    addDir('DFB Pokal','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/dfb-pokal/',228,foxicon)
+    addDir('UEFA Europa League Kwalificatie','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/uefa-europa-league-kwalificatie/',228,foxicon)
+    addDir('EK Kwalificatie','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/ek-kwalificatie/',228,foxicon)
+    addDir('Tweede Bundesliga','http://www.foxsports.nl/video/filter/fragments/1/doelpunten/voetbal/tweede-bundesliga/',228,foxicon) 
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    
+def MainInterviews():
+    addDir('Alle Doelpunten','http://www.foxsports.nl/video/filter/fragments/1/interviews/',228,foxicon)
+    addDir('Eredivisie','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/eredivisie/',228,foxicon)  
+    addDir('Jupiler League','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/jupiler-league/',228,foxicon) 
+    addDir('KNVB Beker','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/knvb-beker/',228,foxicon)
+    addDir('UEFA Europa League','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/uefa-europa-league/',228,foxicon)
+    addDir('Barclays Premier League','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/barclays-premier-league/',228,foxicon)
+    addDir('Bundesliga','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/bundesliga/',228,foxicon)  
+    addDir('FA Cup','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/fa-cup/',228,foxicon) 
+    addDir('DFB Pokal','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/dfb-pokal/',228,foxicon)
+    addDir('UEFA Europa League Kwalificatie','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/uefa-europa-league-kwalificatie/',228,foxicon)
+    addDir('EK Kwalificatie','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/ek-kwalificatie/',228,foxicon)
+    addDir('Tweede Bundesliga','http://www.foxsports.nl/video/filter/fragments/1/interviews/voetbal/tweede-bundesliga/',228,foxicon) 
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
+
+def get_num(x):
+    return int(''.join(ele for ele in x if ele.isdigit()))
+
+def ListFox(url):
+    try:
+        page = get_num(url)
+    except:
+        page = 1
+    listhtml = make_request(url)
+    match = re.compile("""src='([^']+)' alt='([^<]+)'>.*?href="([^"]+)""", re.DOTALL | re.IGNORECASE).findall(listhtml)
+    for img, name, videopage in match:
+        name = cleantext(name)
+        videopage = "http://www.foxsports.nl" + videopage
+        addLink(name, videopage, 231, img,img)
+    if len(match) == 12:
+        npage = page + 1        
+        url = url.replace('/'+str(page)+'/','/'+str(npage)+'/')
+        addDir('Volgende Pagina ', url, 228, '')
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+    
+def SearchListFox(url, page=None):
+    listhtml = make_request(url)
+    match = re.compile(r'<article class="dcm-article">.*?<a href="(.*?)">.+?src="(.*?)".*?<a href=".*?">(.*?)</a>', re.DOTALL | re.IGNORECASE).findall(listhtml)
+    for videopage, img, name in match:
+        name = cleantext(name)
+        addLink(name, videopage, 231, img,img)
+    try:
+        nextp=re.compile(r'dcm-active">\d+<.*?href="([^"]+)"', re.DOTALL | re.IGNORECASE).findall(listhtml)[0]
+        next = "http://www.foxsports.nl/video/search/" + nextp.replace("&amp;","&").replace(" ","%20")
+        addDir('Volgende Pagina', next, 229,'')
+    except: pass
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
+def PlayvidFox(url, name):
+    listhtml = make_request(url)
+    videoid = re.compile('data-videoid="(.*?)"', re.DOTALL | re.IGNORECASE).findall(listhtml)[0]
+    videoid = 'http://www.foxsports.nl/divadata/Output/VideoData/' + videoid + '.xml'
+    videoxml = make_request(videoid)
+    videourl = re.compile(r'<uri>([^<]+m3u8)</uri>', re.DOTALL | re.IGNORECASE).findall(videoxml)[0]
+    if videourl:
+        iconimage = xbmc.getInfoImage("ListItem.Thumb")
+        listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+        listitem.setInfo('video', {'Title': name, 'Genre': 'Music'})
+        listitem.setProperty("IsPlayable","true")
+        if int(sys.argv[1]) == -1:
+            pl = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+            pl.clear()
+            pl.add(videourl, listitem)
+            xbmc.Player().play(pl)
+        else:
+            listitem.setPath(str(videourl))
+            xbmcplugin.setResolvedUrl(utils.addon_handle, True, listitem)
 
 
 
 
-def addLink(name, url, mode, iconimage):
-    u = sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)
+
+def Search(url):
+    searchUrl = url
+    vq = _get_keyboard(heading="Zoeken naar...")
+    if (not vq): return False, 0
+    title = urllib.quote_plus(vq)
+    title = title.replace(' ','+')
+    searchUrl = searchUrl + title
+    print "Searching URL: " + searchUrl
+    SearchList(searchUrl)    
+
+
+def SearchFox(url):
+    searchUrl = url
+    vq = _get_keyboard(heading="Zoeken naar...")
+    if (not vq): return False, 0
+    title = urllib.quote_plus(vq)
+    title = title.replace(' ','+')
+    searchUrl = searchUrl + title
+    print "Searching URL: " + searchUrl
+    SearchListFox(searchUrl)  
+
+
+def getParams():
+    param = []
+    paramstring = sys.argv[2]
+    if len(paramstring) >= 2:
+        params = sys.argv[2]
+        cleanedparams = params.replace('?', '')
+        if params[len(params) - 1] == '/':
+            params = params[0:len(params) - 2]
+        pairsofparams = cleanedparams.split('&')
+        param = {}
+        for i in range(len(pairsofparams)):
+            splitparams = {}
+            splitparams = pairsofparams[i].split('=')
+            if (len(splitparams)) == 2:
+                param[splitparams[0]] = splitparams[1]
+    return param
+
+
+def addLink(name,url,mode,iconimage,fanartimage):
+    u = (sys.argv[0] +
+         "?url=" + urllib.quote_plus(url) +
+         "&mode=" + str(mode) +
+         "&name=" + urllib.quote_plus(name))
     ok = True
-    liz = xbmcgui.ListItem(name, iconImage=icon, thumbnailImage=icon)
-    liz.setInfo(type="Video", infoLabels={"Title": name})
-    liz.setProperty('IsPlayable', 'true')
-    ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz)
+    liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+    liz.setInfo(type="Video", infoLabels={ "Title": name })
+    video_streaminfo = {'codec': 'h264'}
+    liz.addStreamInfo('video', video_streaminfo)
+    liz.setProperty("Fanart_Image", fanartimage)
+    ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=False)
     return ok
 
-def addDir(name,url,mode,iconimage,fanart,description,genre,date,credits,isItFolder=True):
-        u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&fanart="+urllib.quote_plus(fanart)
-        ok=True
-        if date == '':
-            date = None
-        else:
-            description += '\n\nDate: %s' %date
-        liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-        liz.setInfo(type="Video", infoLabels={ "Title": name, "Plot": description, "Genre": genre, "dateadded": date, "credits": credits })
-        liz.setProperty("Fanart_Image", fanart)
 
-        
-        ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=isItFolder)
-        return ok
-
-
-
-def getUrl(url, cookieJar=None,post=None, timeout=20, headers=None):
-
-    cookie_handler = urllib2.HTTPCookieProcessor(cookieJar)
-    opener = urllib2.build_opener(cookie_handler, urllib2.HTTPBasicAuthHandler(), urllib2.HTTPHandler())
-    #opener = urllib2.install_opener(opener)
-    req = urllib2.Request(url)
-    req.add_header('User-Agent','Kodi/14.0 (Macintosh; Intel Mac OS X 10_10_3) App_Bitness/64 Version/14.0-Git:2014-12-23-ad747d9-dirty')
-    if headers:
-        for h,hv in headers:
-            req.add_header(h,hv)
-
-    response = opener.open(req,post,timeout=timeout)
-    link=response.read()
-    response.close()
-    return link;
-
-def get_Url(url, cookieJar=None,post=None, timeout=20, headers=None):
-
-    cookie_handler = urllib2.HTTPCookieProcessor(cookieJar)
-    opener = urllib2.build_opener(cookie_handler, urllib2.HTTPBasicAuthHandler(), urllib2.HTTPHandler())
-    #opener = urllib2.install_opener(opener)
-    req = urllib2.Request(url)
-    req.add_header('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36')
-    if headers:
-        for h,hv in headers:
-            req.add_header(h,hv)
-
-    response = opener.open(req,post,timeout=timeout)
-    link=response.read()
-    response.close()
-    return link;
-
-def GetHTML(url):
-    req = urllib2.Request(url)
-    req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-    response = urllib2.urlopen(req)
-    link=response.read()
-    response.close()
-    return link
-
-
-def get_params():
-	param=[]
-	paramstring=sys.argv[2]
-	if len(paramstring)>=2:
-		params=sys.argv[2]
-		cleanedparams=params.replace('?','')
-		if (params[len(params)-1]=='/'):
-			params=params[0:len(params)-2]
-		pairsofparams=cleanedparams.split('&')
-		param={}
-		for i in range(len(pairsofparams)):
-			splitparams={}
-			splitparams=pairsofparams[i].split('=')
-			if (len(splitparams))==2:
-				param[splitparams[0]]=splitparams[1]
-				
-	return param
-
-
-
-
-def Addtypes():
-        import geo
-        addDir('Club Channels' ,'sss',30,icon ,  FANART,'','','','')
-        #if geo.returnCountyCode() == "NL":
-        addDir('Sport365.live' ,'Sport365',12,icon ,  FANART,'','','','')
-        addDir('Bvls2016.sc' ,'Bvls',13,icon ,  FANART,'','','','')
-        addDir('Thefeed2all.eu' ,'sss',2,icon ,  FANART,'','','','')
-        #addDir('Wiz1.net' ,'sss',20,icon ,  FANART,'','','','')
-        #addDir('Goatd.net' ,'sss',22,icon ,  FANART,'','','','')
-	return
-
-
-
-
-def total_seconds(dt):
-    import datetime
-    if hasattr(datetime, 'total_seconds'):
-        return dt.total_seconds()
-    else:
-        return (dt.microseconds + (dt.seconds + dt.days * 24 * 3600) * 10**6) / 10**6
-        
-def getutfoffset():
-    import time
-    from datetime import datetime
-
-    ts = time.time()
-    utc_offset = total_seconds((   datetime.fromtimestamp(ts)-datetime.utcfromtimestamp(ts)))/60
-              
-    return int(utc_offset)
-
-
-
-
-
-
-
-
-def getResponse(url):
-    try:
-        response = urllib2.urlopen(url, timeout=200)
-        if response and response.getcode() == 200:
-            return response
-        else :
-            return False
-    except:
-        return False
-    
-def AddSports365Channels(url=None):
-    errored=True
-    import live365
-    #addDir(Colored("All times in local timezone.",'red') ,"" ,0 ,"","","","","","")		#name,url,mode,icon
-    videos=live365.getLinks()
-    for nm,link,active in videos:
-        if active:
-           
-            addDir(Colored(nm  ,'ZM') ,link,11 ,"","","","","","")
-        else:
-            addDir("[N/A]"+Colored(nm ,'blue') ,"",0 ,"","","","","","")
-        errored=False
-    #if errored:
-       #if RefreshResources([('live365.py','https:#')]):
-            #dialog = xbmcgui.Dialog()
-            #ok = dialog.ok('XBMC', 'No Links, so updated files dyamically, try again, just in case!')           
-            #print 'Updated files'
-
-
-
-def playSports365(url):
-    #print ('playSports365')
-    import live365
-    urlToPlay=live365.selectMatch(url)
-    if urlToPlay and len(urlToPlay)>0:
-        listitem = xbmcgui.ListItem( label = str(name), iconImage = "DefaultVideo.png", thumbnailImage = xbmc.getInfoImage( "ListItem.Thumb" ) )
-    #    print   "playing stream name: " + str(name)
-        #xbmc.executebuiltin('XBMC.Notification(Visit sport365.live , And keep Streams Alive !! ,10000,'+icon+')')
-        xbmc.Player(  ).play( urlToPlay, listitem)  
-    #else:
-       #if RefreshResources([('live365.py','https://')]):
-            #dialog = xbmcgui.Dialog()
-            #ok = dialog.ok('XBMC', 'No Links, so updated files dyamically, try again, just in case!')           
-            #print 'Updated files'
-    return	 
-
-
-
-    
-   
-
-		
-
-def Colored(text = '', colorid = '', isBold = False):
-    if colorid == 'ZM':
-        color = 'FF11b500'
-    elif colorid == 'EB':
-        color = 'FFe37101'
-    elif colorid == 'bold':
-        return '[B]' + text + '[/B]'
-    else:
-        color = colorid
-        
-    if isBold == True:
-        text = '[B]' + text + '[/B]'
-    return '[COLOR ' + color + ']' + text + '[/COLOR]'	
-
-def convert(s):
-    try:
-        return s.group(0).encode('latin1').decode('utf8')
-    except:
-        return s.group(0)
-        
-
-
-
-    
-        
-
-
-
-	
-
-def playVeetle(url):
-     xbmc.executebuiltin('XBMC.RunPlugin('+url+')') 
-
-
-
-
-
-def sorted_nicely( l ): 
-    """ Sort the given iterable in the way that humans expect.""" 
-    convert = lambda text: int(text) if text.isdigit() else text 
-    alphanum_key = lambda key: [ convert(c) for c in re.split('([0-9]+)', key[1]) ] 
-    return sorted(l, key = alphanum_key)
-
-
-
-
-def getPage(page, referer=None, ua=None, cookieJar=None,post=None,timeout=5):
-    cookie_handler = urllib2.HTTPCookieProcessor(cookieJar)
-    opener = urllib2.build_opener(cookie_handler, urllib2.HTTPBasicAuthHandler(), urllib2.HTTPHandler())
-    url = page                                                           
-    try:                                                                 
-        req = urllib2.Request(url ,None)                                                                          
-        if(referer is not None):                                                                                  
-            req.add_header('Referer', referer)                                                                    
-                                                                                                                  
-        if(ua is not None):                                                                                       
-            req.add_header('User-Agent', ua)                                                                      
-                                                                                                                  
-        req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8')               
-        req.add_header('Accept-Language', 'nl,en-US;q=0.7,en;q=0.3')                                              
-        req.add_header('Accept-Encoding', 'deflate')                                                        
-        req.add_header('Connection', 'keep-alive')
-        response = opener.open(req,post,timeout=timeout)
-        #response = urllib2.urlopen(req,post,timeout)                                            
-        data = response.read()                                                                                    
-        response.close()                                                                                          
-        if(ua is None) :                                                                                          
-            print(data)                                                                            
-        return str(data)                                                                           
-    except :                                                                                       
-        return ''                                                                                  
-        print('We failed to open '+url)
-
-def getUserAgent():
-    return getUa()
-
-def getUa():
-    foo = ["Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0","Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:25.0) Gecko/20100101 Firefox/25.0", "Mozilla/5.0 (Windows NT 6.0; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:24.0) Gecko/20100101 Firefox/24.0", "Mozilla/5.0 (Windows NT 6.2; rv:22.0) Gecko/20130405 Firefox/23.0", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20130406 Firefox/23.0", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:23.0) Gecko/20131011 Firefox/23.0", "Mozilla/5.0 (Windows NT 6.2; rv:22.0) Gecko/20130405 Firefox/22.0", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:22.0) Gecko/20130328 Firefox/22.0", "Mozilla/5.0 (Windows NT 6.1; rv:22.0) Gecko/20130405 Firefox/22.0", "Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/21.0.1", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/21.0.1", "Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:21.0.0) Gecko/20121011 Firefox/21.0.0", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:21.0) Gecko/20130331 Firefox/21.0", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0", "Mozilla/5.0 (X11; Linux i686; rv:21.0) Gecko/20100101 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.2; rv:21.0) Gecko/20130326 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20130401 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20130331 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20130330 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.1; rv:21.0) Gecko/20130401 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.1; rv:21.0) Gecko/20130328 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.1; rv:21.0) Gecko/20100101 Firefox/21.0", "Mozilla/5.0 (Windows NT 5.1; rv:21.0) Gecko/20130401 Firefox/21.0", "Mozilla/5.0 (Windows NT 5.1; rv:21.0) Gecko/20130331 Firefox/21.0", "Mozilla/5.0 (Windows NT 5.1; rv:21.0) Gecko/20100101 Firefox/21.0", "Mozilla/5.0 (Windows NT 5.0; rv:21.0) Gecko/20100101 Firefox/21.0", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:21.0) Gecko/20100101 Firefox/21.0", "Mozilla/5.0 (Windows NT 6.2; Win64; x64;) Gecko/20100101 Firefox/20.0", "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20100101 Firefox/19.0", "Mozilla/5.0 (Windows NT 6.1; rv:14.0) Gecko/20100101 Firefox/18.0.1", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:18.0) Gecko/20100101 Firefox/18.0", "Mozilla/5.0 (X11; Ubuntu; Linux armv7l; rv:17.0) Gecko/20100101 Firefox/17.0", "Mozilla/6.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1", "Mozilla/5.0 (Windows NT 6.2; Win64; x64; rv:16.0.1) Gecko/20121011 Firefox/16.0.1", "Mozilla/5.0 (Windows NT 6.1; rv:15.0) Gecko/20120716 Firefox/15.0a2", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.16) Gecko/20120427 Firefox/15.0a1", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:15.0) Gecko/20120427 Firefox/15.0a1", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:15.0) Gecko/20120910144328 Firefox/15.0.2", "Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:15.0) Gecko/20100101 Firefox/15.0.1", "Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:15.0) Gecko/20121011 Firefox/15.0.1"]
-    return(random.choice(foo))
-
-def getBaseEncodedString(streamPage):
-    try:
-        _regex_encodedstring = re.compile("file\s*\:\s*window\.atob\(\'(.*?)\'\)" , re.DOTALL)
-        baseEncoded = _regex_encodedstring.search(streamPage).group(1)
-        return baseEncoded
-    except:
-        return ''
-
-def getStreamUrl(baseEncoded):
-    return base64.b64decode(baseEncoded)
-
-def VeetleId(streamUrl):
-    veetleId = getIdByUrl(streamUrl)
-    veetleUrl = 'plugin://plugin.video.veetle/?channel='+veetleId
-    return veetleUrl
-
-def getIdByUrl(url):
-    try :
-        _regex_getM3u = re.compile("http://(.*?)/flv/(.*?)/1.flv", re.DOTALL)
-        streamId = _regex_getM3u.search(url).group(2)
-        return streamId
-    except :
-        return url
-
-
-def resolver(url, name):
-    import liveresolver
-    resolved = liveresolver.resolve(url) 
-    if resolved:
-        xbmc.Player().play(resolved)
-    else:
-        xbmc.executebuiltin("XBMC.Notification(DutchSportStreams,No playable link found. - ,5000)")
-    liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png",thumbnailImage="DefaultVideo.png")
-    liz.setInfo( type="Video", infoLabels={ "Title": name } )
-    xbmc.Player().play(resolved, liz)
-
-
-
-params=get_params()
-url=None
-name=None
-mode=None
-linkType=None
-
-try:
-	url=urllib.unquote_plus(params["url"])
-except:
-	pass
-try:
-	name=urllib.unquote_plus(params["name"])
-except:
-	pass
-try:
-	mode=int(params["mode"])
-except:
-	pass
-
-
-args = cgi.parse_qs(sys.argv[2][1:])
-linkType=''
-try:
-	linkType=args.get('linkType', '')[0]
-except:
-	pass
-
-
-print 	mode,url,linkType
-
-try:
-	if mode==None or url==None or len(url)<1:
-		AddSports365Channels('Sport365')
-
-
-        elif mode==2:
-                Catfeed2all()
-        elif mode==3:
-                resolver(url,name)
-        elif mode==11 :
-
-                url=base64.b64decode(url)
-                playSports365(url.split('Sports365:')[1])
-
-    
-	elif mode==12 :
-		print "Play url is 12"+url
-		AddSports365Channels('Sport365')
-
-	elif mode==13 :
-		print "Play url is 12"+url
-		AddBvls(url)
-		
-        elif mode==14 :
-		print "Play url is 13"+url
-		playBvls(name,url)
-
-	elif mode==16 :
-		print "Play url is "+url
-		AddCricFree(url)
-	elif mode==17 :
-		print "Play url is "+url
-		PlayCricFree(url)
-	elif mode==18 :
-		print "Play url is "+url
-		Addthefeed2all(url)
-	elif mode==19 :
-		print "Play url is "+url
-		playthefeed2all(url)
-	elif mode==20 :
-		print "Play url is "+url
-		Addwiz(url)
-	elif mode==21 :
-		print "Play url is "+url
-		playwiz(url)
-	elif mode==22 :
-		print "Play url is "+url
-		Addgoatd(url)
-	elif mode==23 :
-		print "Play url is "+url
-		playgoatd(url)
-
-        elif mode==30 :
-		CatClubchannels()
-	
-
-except:
-	print 'somethingwrong'
-	traceback.print_exc(file=sys.stdout)
-	
-
-if not ( (mode==3 or mode==4 or mode==9 or mode==11 or mode==15 or mode==25 or mode==26 or mode==27 or mode==29 or mode==32 or mode==37 or mode==40 or mode==42 or mode==0)  )  :
-	if mode==144:
-		xbmcplugin.endOfDirectory(int(sys.argv[1]),updateListing=True)
-	else:
-		xbmcplugin.endOfDirectory(int(sys.argv[1]))
-
-from resources.lib.modules import cache, control, changelog
-cache.get(changelog.get, 600000000, control.addonInfo('version'), table='changelog')
+def addDir(name,url,mode,iconimage):
+    u = (sys.argv[0] +
+         "?url=" + urllib.quote_plus(url) +
+         "&mode=" + str(mode) +
+         "&name=" + urllib.quote_plus(name))
+    ok = True
+    liz = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    liz.setInfo(type="Video", infoLabels={ "Title": name })
+    liz.setProperty("Fanart_Image", fanart)
+    ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
+    return ok
+
+def _get_keyboard(default="", heading="", hidden=False):
+    """ shows a keyboard and returns a value """
+    keyboard = xbmc.Keyboard(default, heading, hidden)
+    keyboard.doModal()
+    if keyboard.isConfirmed():
+        return unicode(keyboard.getText(), "utf-8")
+    return default
+
+def cleantext(text):
+    text = text.replace('&#8211;','-')
+    text = text.replace('&#038;','&')
+    text = text.replace('&#8217;','\'')
+    text = text.replace('&#8216;','\'')
+    text = text.replace('&#8230;','...')
+    text = text.replace('&quot;','"')
+    text = text.replace('&#039;','`')
+    text = text.replace('&amp;','&')
+    text = text.replace('&ntilde;','ñ')
+    text = text.replace("&#39;","'")
+    text = text.replace('&#233;','é')
+    text = text.replace('&#252;','ü')
+    text = text.replace('&nbsp;',' ')
+    text = text.replace('&iacute;','í')
+    text = text.replace('&acute;','´')
+    text = text.replace('&bull;','-')
+    return text
+
+
+params = getParams()
+url = None
+name = None
+mode = None
+download = None
+
+try: url = urllib.unquote_plus(params["url"])
+except: pass
+try: name = urllib.unquote_plus(params["name"])
+except: pass
+try: mode = int(params["mode"])
+except: pass
+
+
+
+if mode == None: MainDir()
+elif mode == 1: CatClubchannels()
+elif mode == 2: MainZigo()
+elif mode == 3: MainFox()
+elif mode == 4: Top40()
+elif mode == 5: Tipparade()
+elif mode == 6: tipweeknumbers(url)
+elif mode == 7: tiplist(url)
+
+elif mode == 13: List(url)
+elif mode == 14: SearchList(url)
+elif mode == 15: Search(url)
+elif mode == 16: Playvid(url, name)
+
+
+elif mode == 227: MainFox()
+elif mode == 228: ListFox(url)
+elif mode == 229: SearchListFox(url)
+elif mode == 230: SearchFox(url)
+elif mode == 231: PlayvidFox(url, name)
+elif mode == 237: MainSamenvattingen()
+elif mode == 238: MainDoelpunten()
+elif mode == 239: MainInterviews()
+
+xbmcplugin.endOfDirectory(int(sys.argv[1]))
