@@ -31,7 +31,7 @@ class NoRedirection(urllib2.HTTPErrorProcessor):
 
 
 foxicon = 'http://www.foxsports.nl/images/ml/logos/logo.png'
-
+sportsdevil = 'plugin://plugin.video.SportsDevil/?mode=1&amp;item=catcher%3dstreams%26url='
 
 def make_request(url):
 	try:
@@ -54,12 +54,37 @@ def make_request(url):
 
 def MainDir():
     addDir('Club Channels' ,'',1,icon)
+    addDir('SEBN' ,'',4,icon)
     addDir('Ziggo Sport Totaal Replays and Clips' ,'',2,icon)
     addDir('FOX Sports Videos' ,'',3,icon)
     
         
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
+
+def SEBN():
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]1[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-1.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]2[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-2.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]3[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-3.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]4[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-4.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]5[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-5.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]6[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-6.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]7[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-7.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]8[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-8.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]9[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-9.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]10[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-10.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]11[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-11.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+    addLink('[B][COLOR green]•[/COLOR][COLOR yellow]SEBN [/COLOR][COLOR red]12[/COLOR][/B]', sportsdevil+'http://sebn.sc/sebn-12.php', 5, 'http://sebn.sc/images/logo.png',fanart)
+
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
+def PlaySEBN(url,name=None):
+    iconimage = xbmc.getInfoImage("ListItem.Thumb")
+    liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
+    liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    dp = xbmcgui.DialogProgress()
+    dp.create("DutchSportStreams","Please wait")  
+    xbmc.Player().play(url, liz, False)
 
 def CatClubchannels():
     import plugintools
@@ -261,7 +286,11 @@ def PlayvidFox(url, name):
             xbmcplugin.setResolvedUrl(utils.addon_handle, True, listitem)
 
 
-
+#sportsdevil = 'plugin://plugin.video.SportsDevil/?mode=1&amp;item=catcher%3dstreams%26url=' +i.string
+#referer = item('referer')[0].string
+#if referer:
+#print 'referer found'
+#sportsdevil = sportsdevil + '%26referer=' +referer
 
 
 def Search(url):
@@ -378,8 +407,8 @@ if mode == None: MainDir()
 elif mode == 1: CatClubchannels()
 elif mode == 2: MainZigo()
 elif mode == 3: MainFox()
-elif mode == 4: Top40()
-elif mode == 5: Tipparade()
+elif mode == 4: SEBN()
+elif mode == 5: PlaySEBN(url)
 elif mode == 6: tipweeknumbers(url)
 elif mode == 7: tiplist(url)
 
