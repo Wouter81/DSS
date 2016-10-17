@@ -103,8 +103,8 @@ def Competition_Main():
         ID = items["id"]
         url = 'http://mapi.foxsports.nl/api/mobile/v2/soccer/articles/'+str(ID)
         title = items["name"]
-        title = safe_unicode(title)
         title = title.encode('utf-8')
+        title = removeNonAscii(title)
         print title
         icon = items["icon"]
         addDir('[B][COLOR gold]'+title+'[/COLOR][/B]',url, 3, icon)
@@ -112,8 +112,8 @@ def Competition_Main():
         ID = items["id"]
         url = 'http://mapi.foxsports.nl/api/mobile/v2/soccer/articles/'+str(ID)
         title = items["name"]
-        title = safe_unicode(title)
         title = title.encode('utf-8')
+        title = removeNonAscii(title)
         print title
         icon = items["icon"]
         addDir('[B][COLOR gold]'+title+'[/COLOR][/B]',url, 3, icon)
@@ -126,66 +126,52 @@ def foxread(url):
     for items in livejson:
         title = items["title"]
         title = title.encode('utf-8')
-        #title = title.replace("'","")
+        title = removeNonAscii(title)
         print title
         image = items["image"]
-        xdate = items["last_modified"][0:10]
+        last_modified = items["last_modified"][0:10]
         video_id = items["video"]["diva_settings"]["video_id"]
         image = image.replace('{size}','300x184')
         url = get_video(video_id)
         if url is not None:
-            addLink('[COLOR blue]'+title+'[/COLOR]', url, 20, image,image)
+            addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
         
 def foxmore(url):
     livejson = GetHTML(url)
-    #print livejson
-    livejson = json.loads(livejson)
+    livejson = json.loads(livejson, encoding='utf-8')
     for items in livejson["other_articles"]:
-        try:
-            title = items["title"]
-            title = safe_unicode(title)
-            title = title.encode('utf-8')
-            #print title
-            image = items["image"]
-            last_modified = items["last_modified"][0:10]
-            try:
-                video_id = items["video"]["diva_settings"]["video_id"]
-            except:
-                video_id = None
-            image = image.replace('{size}','300x184')
-            if video_id is not None:
-                url = get_video(video_id)
-                addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
-        except:
-            pass
+        title = items["title"]
+        title = title.encode('utf-8')
+        title = removeNonAscii(title)
+        image = items["image"]
+        image = image.replace('{size}','300x184')
+        last_modified = items["last_modified"][0:10]
+        if "video" in items:
+            video_id = items["video"]["diva_settings"]["video_id"]
+            url = get_video(video_id)
+            print url
+            addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
 
     for items in livejson["hero_image_articles"]:
-        try:
-            title = items["title"]
-            title = safe_unicode(title)
-            title = title.encode('utf-8')
-            image = items["image"]
-            last_modified = items["last_modified"][0:10]
-            try:
-                video_id = items["video"]["diva_settings"]["video_id"]
-            except:
-                video_id = None
-            image = image.replace('{size}','300x184')
-            if video_id is not None:
-                url = get_video(video_id)
-                addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
-        except:
-            pass
+        title = items["title"]
+        title = title.encode('utf-8')
+        title = removeNonAscii(title)
+        image = items["image"]
+        image = image.replace('{size}','300x184')
+        last_modified = items["last_modified"][0:10]
+        if "video" in items:
+            video_id = items["video"]["diva_settings"]["video_id"]
+            url = get_video(video_id)
+            addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
 
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 def get_video(id):
     xmlLocation = 'http://www.foxsports.nl/divadata/Output/VideoData/'+id+'.xml'
-    xml_regex = '</videoSource>\s*<videoSource format="HLS" offset=".*?">\s*<DVRType>.*?l</DVRType>\s*<uri>(.*?)</uri>'
-    content = make_request(xmlLocation)
-    #print content
+    xml_regex = '<videoSource format="HLS" offset=".*?">\s*<DVRType>.*?</DVRType>\s*<uri>(.*?)</uri>'
+    content = GetHTML(xmlLocation)
     url = re.compile(xml_regex, re.DOTALL).findall(content)
     for video in url:
         return video
@@ -200,22 +186,7 @@ def Play(url,name):
     dp.create("foxsports.nl","Please wait")  
     xbmc.Player().play(url, liz, False)
 
-def safe_unicode(obj, *args):
-    """ return the unicode representation of obj """
-    try:
-        return unicode(obj, *args)
-    except UnicodeDecodeError:
-        # obj is byte string
-        ascii_text = str(obj).encode('string_escape')
-        return unicode(ascii_text)
-
-def safe_str(obj):
-    """ return the byte string representation of obj """
-    try:
-        return str(obj)
-    except UnicodeEncodeError:
-        # obj is unicode
-        return unicode(obj).encode('unicode_escape') 
+def removeNonAscii(s): return "".join(filter(lambda x: ord(x)<128, s))
 
 def getParams():
     param = []
