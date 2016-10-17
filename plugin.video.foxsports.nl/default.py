@@ -66,11 +66,16 @@ def GetHTML(url):
 def MainDir():
     addDir('Uitzending Gemist' ,'',1,icon)
     addDir('Video\'s' ,'',2,icon)
-    #addDir('Eredivisie' ,'http://mapi.foxsports.nl/api/mobile/v2/soccer/articles/9',3,icon)
+    addDir('Competition' ,'',6,icon)
+    addDir('Voetbal' ,'http://mapi.foxsports.nl/api/mobile/v2/soccer/articles',3,icon)
     addDir('Tennis' ,'http://mapi.foxsports.nl/api/mobile/v1/tennis/articles',3,icon)
     addDir('Meer Sports' ,'http://mapi.foxsports.nl/api/mobile/v1/articles/moresports',3,icon)
+    import plugintools
+    plugintools.add_item(title="Fox Sports Youtube",url="plugin://plugin.video.youtube/user/EredivisieLive/",thumbnail='https://yt3.ggpht.com/-UB8-sc_B1Kg/AAAAAAAAAAI/AAAAAAAAAAA/vxlLGekBYxU/s100-c-k-no-mo-rj-c0xffffff/photo.jpg',folder=True )
+    
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
+
 
 
 def Uitzending_Gemist():
@@ -91,7 +96,29 @@ def Video_s():
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
-
+def Competition_Main():
+    livejson = GetHTML('http://mapi.foxsports.nl/api/mobile/v1/soccer/competitions')
+    livejson = json.loads(livejson)
+    for items in livejson["national"]:
+        ID = items["id"]
+        url = 'http://mapi.foxsports.nl/api/mobile/v2/soccer/articles/'+str(ID)
+        title = items["name"]
+        title = safe_unicode(title)
+        title = title.encode('utf-8')
+        print title
+        icon = items["icon"]
+        addDir('[B][COLOR gold]'+title+'[/COLOR][/B]',url, 3, icon)
+    for items in livejson["international"]:
+        ID = items["id"]
+        url = 'http://mapi.foxsports.nl/api/mobile/v2/soccer/articles/'+str(ID)
+        title = items["name"]
+        title = safe_unicode(title)
+        title = title.encode('utf-8')
+        print title
+        icon = items["icon"]
+        addDir('[B][COLOR gold]'+title+'[/COLOR][/B]',url, 3, icon)
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
+        
 
 def foxread(url):
     livejson = GetHTML(fox_cat+url)
@@ -119,7 +146,7 @@ def foxmore(url):
             title = items["title"]
             title = safe_unicode(title)
             title = title.encode('utf-8')
-            print title
+            #print title
             image = items["image"]
             last_modified = items["last_modified"][0:10]
             try:
@@ -284,7 +311,7 @@ elif mode == 2: Video_s()
 elif mode == 3: foxmore(url)
 elif mode == 4: SEBN()
 elif mode == 5: PlaySEBN(url)
-elif mode == 6: tipweeknumbers(url)
+elif mode == 6: Competition_Main()
 elif mode == 7: tiplist(url)
 
 elif mode == 11: foxread(url)
