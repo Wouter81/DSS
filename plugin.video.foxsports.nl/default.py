@@ -66,7 +66,7 @@ def GetHTML(url):
 def MainDir():
     addDir('Uitzending Gemist' ,'',1,icon)
     addDir('Video\'s' ,'',2,icon)
-    addDir('Competition' ,'',6,icon)
+    addDir('Kompetitie' ,'',6,icon)
     addDir('Voetbal' ,'http://mapi.foxsports.nl/api/mobile/v2/soccer/articles',3,icon)
     addDir('Tennis' ,'http://mapi.foxsports.nl/api/mobile/v1/tennis/articles',3,icon)
     addDir('Meer Sports' ,'http://mapi.foxsports.nl/api/mobile/v1/articles/moresports',3,icon)
