@@ -1,6 +1,9 @@
 ====================================================================
 [COLOR gold]ZiggoSport addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
+[COLOR red][B]V1.0.2[/B][/COLOR]
+- time  fixed.
+
 [COLOR red][B]V1.0.1[/B][/COLOR]
 - Taalfout.
 
