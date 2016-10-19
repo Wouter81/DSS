@@ -31,7 +31,7 @@ class NoRedirection(urllib2.HTTPErrorProcessor):
    https_response = http_response
 
 
-search = 'http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&device=iphone&search='
+ziggosearch = 'http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&device=iphone&search='
 autosport ='http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&category=autosport&device=iphone&order=recent'
 golf ='http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&category=golf&device=iphone&order=recent'
 other ='http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&category=other&device=iphone&order=recent'
@@ -67,37 +67,42 @@ def GetHTML(url):
 
 
 def MainDir():
-    search = 'http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&device=iphone&search='
-    addDir('Voebal' ,'http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&category=soccer&device=iphone&order=recent',1,icon)
-    addDir('Racing' ,'http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&category=autosport&device=iphone&order=recent',1,icon)
-    addDir('Golf' ,'http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&category=golf&device=iphone&order=recent',1,icon)
-    addDir('Tennis' ,'http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&category=tennis&device=iphone&order=recent',1,icon)
-    addDir('Meer Sport' ,'http://go.ziggosporttotaal.nl/apiv2/video?appVersion=2.2.0&category=other&device=iphone&order=recent',1,icon)
-
-    #import plugintools
-    #plugintools.add_item(title="Fox Sports Youtube",url="plugin://plugin.video.youtube/user/EredivisieLive/",thumbnail='https://yt3.ggpht.com/-UB8-sc_B1Kg/AAAAAAAAAAI/AAAAAAAAAAA/vxlLGekBYxU/s100-c-k-no-mo-rj-c0xffffff/photo.jpg',folder=True )
-    
+    addDir('Voebal' ,soccer,1,icon)
+    addDir('Racing' ,autosport,1,icon)
+    addDir('Golf' ,golf,1,icon)
+    addDir('Tennis' ,tennis,1,icon)
+    addDir('Meer Sport' ,other,1,icon)
+    addDir('Zoeken' ,'',2,icon)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 
 
-def zigoread(url):
+def ziggoread(url):
     livejson = GetHTML(url)
     livejson = json.loads(livejson, encoding='utf-8')
     for items in livejson["responseObject"]["mediaItems"]:
         imported = items["imported"]
+        imported = str(datetime.fromtimestamp(imported))[0:10]
         title = items["title"]
         title = title.encode('utf-8')
         title = removeNonAscii(title)
         print title
         image = items["imageUrl"]
         print image
-        url = items["iphoneHigh"]
+        url = items["ipadHigh"]
+        if url == None:
+            url = items["iphoneHigh"]
+            if url == None:
+                url = items["iphoneLow"]
         print url
         duration = items["duration"]
+        duration = str(timedelta(seconds=duration))
+        if duration.startswith("0:"):
+            duration =  duration[3:10]
+        duration=  '['+duration+']'
         if url is not None : 
-            addLink('[COLOR blue]'+title+'[/COLOR]', url, 20, image,image)
+            addLink('[COLOR red]'+duration+'[/COLOR][B][COLOR blue]'+title+'[/COLOR][/B] ('+imported+')', url, 20, image,image)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
         
         
@@ -161,15 +166,23 @@ def addDir(name,url,mode,iconimage):
     ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
     return ok
 
-def _get_keyboard(default="", heading="", hidden=False):
-    """ shows a keyboard and returns a value """
-    keyboard = xbmc.Keyboard(default, heading, hidden)
+
+
+def search():
+    keyboard = xbmc.Keyboard('', 'Enter Zoek Naam:', False)
     keyboard.doModal()
     if keyboard.isConfirmed():
-        return unicode(keyboard.getText(), "utf-8")
-    return default
-
-
+        query = keyboard.getText()
+    else:
+        return
+    query = query.encode('utf-8')
+    query = removeNonAscii(query)
+    url = ziggosearch+query
+    try:
+        ziggoread(url)
+    except:
+        return
+    
 
 
 params = getParams()
@@ -188,7 +201,9 @@ except: pass
 
 
 if mode == None: MainDir()
-elif mode == 1: zigoread(url)
+elif mode == 1: ziggoread(url)
+elif mode == 2: search()
+
 
 
 
