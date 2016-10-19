@@ -67,7 +67,7 @@ def GetHTML(url):
 
 
 def MainDir():
-    addDir('Voebal' ,soccer,1,icon)
+    addDir('Voetbal' ,soccer,1,icon)
     addDir('Racing' ,autosport,1,icon)
     addDir('Golf' ,golf,1,icon)
     addDir('Tennis' ,tennis,1,icon)

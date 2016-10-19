@@ -278,7 +278,7 @@ Andy van der Meijde - Official
 
 <addon id="plugin.video.zigosport"
        name=" ZiggoSport"
-       version="1.0.0"
+       version="1.0.1"
        provider-name="DSS">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
