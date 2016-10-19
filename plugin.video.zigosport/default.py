@@ -99,7 +99,7 @@ def ziggoread(url):
         duration = items["duration"]
         duration = str(timedelta(seconds=duration))
         if duration.startswith("0:"):
-            duration =  duration[3:10]
+            duration =  duration[2:10]
         duration=  '['+duration+']'
         if url is not None : 
             addLink('[COLOR red]'+duration+'[/COLOR][B][COLOR blue]'+title+'[/COLOR][/B] ('+imported+')', url, 20, image,image)
