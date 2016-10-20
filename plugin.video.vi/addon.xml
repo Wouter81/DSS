@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.vi"
+       name=" Voetbal Inside Beta"
+       version="0.0.1"
+       provider-name="DSS">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+	<import addon="plugin.video.youtube" version="2.9.2" optional="true"/>
+    <import addon="script.module.simplejson" version="3.3.0"/>
+    <import addon="script.module.elementtree" version="1.2.8"/>
+
+
+
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="default.py">
+	<provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+	<summary lang="en">Voetbal Inside</summary>
+    <description lang="en">Voetbal Inside</description>
+    <platform>all</platform>
+  </extension>
+</addon>
