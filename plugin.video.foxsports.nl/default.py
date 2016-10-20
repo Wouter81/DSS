@@ -72,7 +72,7 @@ def MainDir():
     addDir('Meer Sports' ,'http://mapi.foxsports.nl/api/mobile/v1/articles/moresports',3,icon)
     import plugintools
     plugintools.add_item(title="Fox Sports Youtube",url="plugin://plugin.video.youtube/user/EredivisieLive/",thumbnail='https://yt3.ggpht.com/-UB8-sc_B1Kg/AAAAAAAAAAI/AAAAAAAAAAA/vxlLGekBYxU/s100-c-k-no-mo-rj-c0xffffff/photo.jpg',folder=True )
-    
+    addDir('Zoeken' ,'',15,icon)
 
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
@@ -150,8 +150,8 @@ def foxmore(url):
         if "video" in items:
             video_id = items["video"]["diva_settings"]["video_id"]
             url = get_video(video_id)
-            print url
-            addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
+            if url is not None :
+                addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
 
     for items in livejson["hero_image_articles"]:
         title = items["title"]
@@ -163,18 +163,49 @@ def foxmore(url):
         if "video" in items:
             video_id = items["video"]["diva_settings"]["video_id"]
             url = get_video(video_id)
-            addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
+            if url is not None :
+                addLink('[COLOR blue]'+title+'[/COLOR]  ('+last_modified+')', url, 20, image,image)
+    xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
-
+def search():
+    keyboard = xbmc.Keyboard('', 'Enter Zoek Naam:', False)
+    keyboard.doModal()
+    if keyboard.isConfirmed():
+        query = keyboard.getText()
+    else:
+        return
+    query = query.encode('utf-8')
+    query = removeNonAscii(query)
+    livejson = GetHTML('http://mapi.foxsports.nl/api/mobile/v1/search/'+query)
+    livejson = json.loads(livejson)
+    for items in livejson:
+        items = items["object"]
+        title = items["title"]
+        title = title.encode('utf-8')
+        title = removeNonAscii(title)
+        image = items["image"]
+        image = image.replace('{size}','300x184')
+        imported = items["date"]
+        imported = str(datetime.fromtimestamp(imported))
+        imported = imported[0:10]
+        if "video" in items:
+            video_id = items["video"]["diva_settings"]["video_id"]
+            url = get_video(video_id)
+            if url is not None :
+                addLink('[COLOR blue]'+title+'[/COLOR]  ('+imported+')', url, 20, image,image)
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 def get_video(id):
-    xmlLocation = 'http://www.foxsports.nl/divadata/Output/VideoData/'+id+'.xml'
-    xml_regex = '<videoSource format="HLS" offset=".*?">\s*<DVRType>.*?</DVRType>\s*<uri>(.*?)</uri>'
-    content = GetHTML(xmlLocation)
-    url = re.compile(xml_regex, re.DOTALL).findall(content)
-    for video in url:
-        return video
+    try:
+        xmlLocation = 'http://www.foxsports.nl/divadata/Output/VideoData/'+id+'.xml'
+        xml_regex = '<videoSource format="HLS" offset=".*?">\s*<DVRType>.*?</DVRType>\s*<uri>(.*?)</uri>'
+        content = GetHTML(xmlLocation)
+        url = re.compile(xml_regex, re.DOTALL).findall(content)
+        for video in url:
+            return video
+    except:
+        url = None
+        return url
 
 
 
@@ -233,32 +264,7 @@ def addDir(name,url,mode,iconimage):
     ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
     return ok
 
-def _get_keyboard(default="", heading="", hidden=False):
-    """ shows a keyboard and returns a value """
-    keyboard = xbmc.Keyboard(default, heading, hidden)
-    keyboard.doModal()
-    if keyboard.isConfirmed():
-        return unicode(keyboard.getText(), "utf-8")
-    return default
 
-def cleantext(text):
-    text = text.replace('&#8211;','-')
-    text = text.replace('&#038;','&')
-    text = text.replace('&#8217;','\'')
-    text = text.replace('&#8216;','\'')
-    text = text.replace('&#8230;','...')
-    text = text.replace('&quot;','"')
-    text = text.replace('&#039;','`')
-    text = text.replace('&amp;','&')
-    text = text.replace('&ntilde;','ñ')
-    text = text.replace("&#39;","'")
-    text = text.replace('&#233;','é')
-    text = text.replace('&#252;','ü')
-    text = text.replace('&nbsp;',' ')
-    text = text.replace('&iacute;','í')
-    text = text.replace('&acute;','´')
-    text = text.replace('&bull;','-')
-    return text
 
 
 params = getParams()
@@ -287,7 +293,7 @@ elif mode == 7: tiplist(url)
 
 elif mode == 11: foxread(url)
 elif mode == 20: Play(url,name)
-elif mode == 15: Search(url)
+elif mode == 15: search()
 elif mode == 16: Playvid(url, name)
 
 

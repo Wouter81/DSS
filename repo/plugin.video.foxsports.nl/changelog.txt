@@ -1,6 +1,9 @@
 ====================================================================
 [COLOR gold]Foxsports.nl addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
+[COLOR red][B]V1.0.4[/B][/COLOR]
+- Add Zoeken.
+
 [COLOR red][B]V1.0.3[/B][/COLOR]
 - Bug Fixed.
 
