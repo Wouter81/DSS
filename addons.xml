@@ -200,8 +200,8 @@ Andy van der Meijde - Official
 </addon>
 
 <addon id="plugin.video.vi"
-       name=" Voetbal Inside Beta"
-       version="0.0.1"
+       name=" Voetbal Inside"
+       version="1.0.0"
        provider-name="DSS">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
