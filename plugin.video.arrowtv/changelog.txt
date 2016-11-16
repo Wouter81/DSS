@@ -1,6 +1,9 @@
 ====================================================================
 [COLOR gold]ARROW.TV addon by[/COLOR] [COLOR blue]DSS[/COLOR]
 ====================================================================
+[COLOR red][B]V1.0.3[/B][/COLOR]
+- Change Player
+
 [COLOR red][B]V1.0.2[/B][/COLOR]
 - Add Hitz
 
